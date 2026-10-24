@@ -1,0 +1,106 @@
+.model-evaluation-page { display: grid; gap: 16px; min-width: 0; }
+.evaluation-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.evaluation-heading h1 { margin: 2px 0 6px; font-size: clamp(24px, 3vw, 31px); letter-spacing: -.7px; }
+.evaluation-heading p { margin: 0; color: var(--text-secondary); font-size: 13px; }
+.evaluation-heading .button { flex: 0 0 auto; }
+.evaluation-toolbar { display: flex; align-items: center; gap: 12px; }
+.evaluation-toolbar label { color: var(--text-secondary); font-size: 12px; font-weight: 650; }
+.evaluation-toolbar select, .evaluation-axis-controls select { min-height: 36px; max-width: 100%; padding: 0 32px 0 10px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); color: var(--text); background: var(--control-bg); font: inherit; }
+.evaluation-toolbar select { flex: 1; }
+.evaluation-source { display: inline-flex; align-items: center; gap: 7px; color: var(--text-secondary); white-space: nowrap; font-size: 11px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--positive); }
+.evaluation-source-loading .status-dot { background: var(--warning); }
+.evaluation-source-error .status-dot, .evaluation-source-unavailable .status-dot { background: var(--danger); }
+.evaluation-state, .evaluation-empty { display: flex; align-items: center; gap: 13px; min-height: 78px; padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-secondary); background: var(--surface); }
+.evaluation-empty > svg, .evaluation-error > svg { flex: 0 0 auto; color: var(--blue-600); }
+.evaluation-empty h2 { margin: 0 0 6px; color: var(--text); font-size: 15px; }
+.evaluation-empty p, .evaluation-empty a { margin: 0; font-size: 12px; line-height: 1.5; }
+.evaluation-empty a, .text-button { color: var(--blue-600); font-weight: 650; }
+.text-button { margin-top: 8px; padding: 0; border: 0; background: transparent; cursor: pointer; font: inherit; }
+.evaluation-error { color: var(--danger); }
+.evaluation-error p { margin: 6px 0 12px; color: var(--text-secondary); font-size: 12px; }
+.evaluation-error .button { min-height: 32px; display: inline-flex; align-items: center; gap: 7px; }
+.evaluation-experiment-card { display: grid; gap: 17px; }
+.evaluation-section-title { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.evaluation-section-title h2 { margin: 0; font-size: 15px; letter-spacing: -.2px; }
+.evaluation-section-title p { margin: 5px 0 0; color: var(--text-muted); font-size: 11px; line-height: 1.45; }
+.evaluation-run-status, .evaluation-statistic { display: inline-flex; align-items: center; padding: 4px 8px; border: 1px solid var(--quality-teal-bg); border-radius: 20px; color: var(--quality-teal); background: var(--quality-teal-bg); font-size: 10px; font-weight: 650; text-transform: capitalize; white-space: nowrap; }
+.evaluation-metadata { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; margin: 0; }
+.evaluation-metadata div { min-width: 0; }
+.evaluation-metadata dt { margin-bottom: 5px; color: var(--text-muted); font-size: 10px; }
+.evaluation-metadata dd { overflow-wrap: anywhere; margin: 0; color: var(--text); font-size: 12px; font-weight: 620; }
+.evaluation-metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; }
+.evaluation-metric { min-height: 121px; padding: 14px 15px; }
+.evaluation-metric-label { display: flex; align-items: center; gap: 6px; color: var(--text-secondary); font-size: 11px; font-weight: 620; }
+.evaluation-metric-label span { display: inline-flex; color: var(--text-muted); cursor: help; }
+.evaluation-metric > strong { display: block; overflow-wrap: anywhere; margin: 10px 0 6px; color: var(--navy-950); font-size: 23px; letter-spacing: -.55px; }
+.evaluation-metric > p { margin: 0; color: var(--text-muted); font-size: 10px; line-height: 1.45; }
+.evaluation-two-column { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.3fr); gap: 14px; }
+.evaluation-panel { min-width: 0; padding: 17px; }
+.evaluation-panel > .evaluation-section-title { margin-bottom: 13px; }
+.evaluation-chart { position: relative; width: 100%; height: 260px; min-width: 0; }
+.evaluation-scatter-chart { height: auto; min-height: 135px; }
+.evaluation-scatter-plot { width: 100%; height: 250px; }
+.evaluation-cluster-legend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 2px 0 0; padding: 0; list-style: none; }
+.evaluation-cluster-legend li { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); font-size: 10px; }
+.evaluation-cluster-legend li span { width: 9px; height: 9px; border-radius: 50%; }
+.evaluation-scatter-chart .evaluation-chart-empty { min-height: 130px; height: auto; }
+.evaluation-distribution-chart { height: 225px; }
+.evaluation-chart-empty { display: grid; place-items: center; height: 100%; padding: 18px; color: var(--text-muted); text-align: center; font-size: 12px; line-height: 1.5; }
+.evaluation-note { margin: 9px 0 0; color: var(--text-muted); font-size: 10px; line-height: 1.5; }
+.evaluation-table-wrap { width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; }
+.evaluation-table-wrap:focus-visible { outline: 3px solid var(--blue-600); outline-offset: 2px; }
+.evaluation-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 11px; }
+.evaluation-table th, .evaluation-table td { padding: 10px 9px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.evaluation-table thead th { color: var(--text-muted); font-size: 10px; font-weight: 620; }
+.evaluation-table tbody th { color: var(--text); font-weight: 650; }
+.evaluation-table td { color: var(--text-secondary); }
+.evaluation-statistic { padding: 3px 7px; color: var(--text-secondary); background: var(--surface-muted); border-color: var(--border); }
+.evaluation-scatter-title { align-items: center; }
+.evaluation-axis-controls { display: flex; flex-wrap: wrap; gap: 10px; }
+.evaluation-axis-controls label { display: grid; gap: 5px; color: var(--text-muted); font-size: 10px; }
+.evaluation-axis-controls select { min-height: 32px; font-size: 11px; }
+.evaluation-interpretation ul { display: grid; gap: 8px; margin: 0; padding-left: 18px; color: var(--text-secondary); font-size: 11px; line-height: 1.55; }
+.evaluation-observations { margin-bottom: 13px; padding: 11px 12px; border: 1px solid var(--demo-notice-border); border-radius: var(--radius-sm); background: var(--demo-bg); }
+.evaluation-observations h3 { margin: 0 0 7px; color: var(--text); font-size: 11px; }
+.evaluation-observations p { margin: 0; color: var(--text-secondary); font-size: 11px; line-height: 1.5; }
+.evaluation-observations ul { margin: 0; color: var(--text-secondary); }
+.evaluation-comparison { display: grid; gap: 13px; }
+.evaluation-comparison > .evaluation-section-title { margin-bottom: 0; }
+.evaluation-compare-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.evaluation-compare-options label { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; padding: 0 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-secondary); background: var(--surface-muted); cursor: pointer; font-size: 11px; }
+.evaluation-compare-options input { accent-color: var(--blue-600); }
+.evaluation-warning { margin: 0; padding: 9px 11px; border-left: 3px solid var(--warning); color: var(--text-secondary); background: var(--warning-bg); font-size: 11px; line-height: 1.5; }
+.evaluation-compare-chart-title h3 { margin: 3px 0 4px; font-size: 12px; }
+.evaluation-compare-chart-title p { margin: 0; color: var(--text-muted); font-size: 10px; }
+.chart-tooltip { display: grid; gap: 4px; padding: 9px 11px; border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-secondary); background: var(--surface); box-shadow: var(--shadow-panel); font-size: 10px; }
+.chart-tooltip strong { color: var(--text); }
+
+@media (max-width: 1100px) {
+  .evaluation-metadata { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .evaluation-metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .evaluation-two-column { grid-template-columns: 1fr; }
+}
+@media (max-width: 700px) {
+  .evaluation-heading { flex-direction: column; align-items: stretch; gap: 12px; }
+  .evaluation-heading .button { align-self: flex-start; }
+  .evaluation-toolbar { align-items: stretch; flex-direction: column; }
+  .evaluation-toolbar select { width: 100%; }
+  .evaluation-source { white-space: normal; }
+  .evaluation-metadata { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .evaluation-scatter-title { align-items: flex-start; flex-direction: column; }
+  .evaluation-axis-controls { width: 100%; }
+  .evaluation-axis-controls label { flex: 1; min-width: 120px; }
+  .evaluation-axis-controls select { width: 100%; }
+}
+@media (max-width: 420px) {
+  .evaluation-metric-grid { grid-template-columns: 1fr; }
+  .evaluation-metric { min-height: 0; }
+  .evaluation-panel { padding: 13px; }
+  .evaluation-chart { height: 225px; }
+  .evaluation-scatter-chart { height: auto; }
+  .evaluation-scatter-plot { height: 220px; }
+  .evaluation-distribution-chart { height: 200px; }
+  .evaluation-table { font-size: 10px; }
+  .evaluation-table th, .evaluation-table td { padding: 8px 7px; }
+}
