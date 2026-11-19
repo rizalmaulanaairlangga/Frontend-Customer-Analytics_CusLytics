@@ -15,6 +15,7 @@ import './styles/ml-studio.css'
 import './styles/model-evaluation.css'
 import './styles/action-center.css'
 import './styles/reports.css'
+import './styles/components.css'
 import { App } from './app/App'
 
 createRoot(document.getElementById('root')!).render(
