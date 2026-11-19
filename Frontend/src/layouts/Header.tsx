@@ -16,7 +16,6 @@ export function Header({ onOpenNavigation, mobileOpen, menuButtonRef }: HeaderPr
         {mobileOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
       </button>
       <nav className="breadcrumbs" aria-label="Breadcrumb"><span>Workspace</span><span className="breadcrumb-divider">/</span><strong>{current}</strong></nav>
-      <span className="topbar-context">CusLytics · Customer Analytics</span>
       <button className="theme-toggle" type="button" onClick={toggleTheme} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`} aria-pressed={theme === 'dark'}>
         {theme === 'dark' ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />}
         <span>{theme === 'dark' ? 'Light' : 'Dark'} mode</span>

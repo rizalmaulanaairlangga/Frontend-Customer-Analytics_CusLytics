@@ -45,7 +45,6 @@ export function Sidebar({ collapsed, mobileOpen, onCollapse, onNavigate }: Sideb
             </NavLink>
           ))}
         </nav>
-        <div className="sidebar-footer"><span className="footer-dot" /><span>Reference analytics workspace</span></div>
       </aside>
     </>
   )
