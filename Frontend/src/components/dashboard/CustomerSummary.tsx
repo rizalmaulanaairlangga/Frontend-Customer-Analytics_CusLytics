@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
 import { ArrowUpRight } from 'lucide-react'
 import type { DashboardSnapshot } from '../../types/analytics'
+import { formatNumber } from '../../utils/format'
 
 interface CustomerSummaryProps { summary: DashboardSnapshot['customerSummary'] }
-const countFormat = new Intl.NumberFormat('en-GB')
 
 export function CustomerSummary({ summary }: CustomerSummaryProps) {
   const rfmLabel = summary.rfmStatus === 'available' ? 'Available' : summary.rfmStatus === 'pending' ? 'Waiting for backend' : 'Not available'
@@ -14,7 +14,7 @@ export function CustomerSummary({ summary }: CustomerSummaryProps) {
         <span className={`rfm-indicator rfm-${summary.rfmStatus}`} aria-hidden="true" />
       </div>
       <div className="customer-count">
-        <strong>{summary.identifiedCustomers === null ? 'Unavailable' : countFormat.format(summary.identifiedCustomers)}</strong>
+        <strong>{summary.identifiedCustomers === null ? '—' : formatNumber(summary.identifiedCustomers)}</strong>
         <span>identified customers</span>
       </div>
       <div className="rfm-status-row"><span>RFM analytics</span><strong>{rfmLabel}</strong></div>

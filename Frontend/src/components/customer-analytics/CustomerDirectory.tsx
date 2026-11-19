@@ -2,15 +2,16 @@ import { useState } from 'react'
 import { Search, RotateCcw } from 'lucide-react'
 import type { CustomerRfmRecord, RfmMetric } from '../../types/customerAnalytics'
 import { CustomerDetailDrawer } from './CustomerDetailDrawer'
+import { formatCurrency, formatNumber } from '../../utils/format'
 
 type SortKey = 'customerId' | RfmMetric
 
 function number(value: number | null, currencyCode?: string, currency = false): string {
   if (value === null) return '—'
   try {
-    return new Intl.NumberFormat('id-ID', currency && currencyCode ? { style: 'currency', currency: currencyCode, maximumFractionDigits: 2 } : { maximumFractionDigits: 2 }).format(value)
+    return currency && currencyCode ? formatCurrency(value, currencyCode) : formatNumber(value, { maximumFractionDigits: 2 })
   } catch {
-    return new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 }).format(value)
+    return formatNumber(value, { maximumFractionDigits: 2 })
   }
 }
 

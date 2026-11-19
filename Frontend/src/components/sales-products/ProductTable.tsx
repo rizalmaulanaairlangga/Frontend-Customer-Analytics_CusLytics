@@ -1,14 +1,15 @@
 import { useMemo, useState } from 'react'
 import { Search, X } from 'lucide-react'
 import type { ProductRank } from '../../types/analytics'
+import { formatCurrency, formatNumber as formatNumericValue } from '../../utils/format'
 
 type SortKey = 'unitsSold' | 'salesValue' | 'uniqueInvoices'
 
 function formatNumber(value?: number | null, currencyCode?: string): string {
   if (value === undefined || value === null) return 'Not available'
   return currencyCode
-    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: currencyCode, maximumFractionDigits: 2 }).format(value)
-    : new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(value)
+    ? formatCurrency(value, currencyCode)
+    : formatNumericValue(value, { maximumFractionDigits: 2 })
 }
 
 export function ProductTable({ products, currencyCode, selectedId, onClearSelection }: {

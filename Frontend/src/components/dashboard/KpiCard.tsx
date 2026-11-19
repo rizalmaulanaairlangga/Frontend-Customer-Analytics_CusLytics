@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { BarChart3, Package, Receipt, UsersRound } from 'lucide-react'
+import { formatCurrency, formatNumber } from '../../utils/format'
 
 interface KpiCardProps {
   label: string
@@ -10,12 +11,10 @@ interface KpiCardProps {
   currencyCode?: string
 }
 
-const numberFormat = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 2 })
-
 export function KpiCard({ label, value, definition, icon, format, currencyCode }: KpiCardProps) {
   const valueFormat = format ?? (currencyCode
-    ? (number: number) => new Intl.NumberFormat('en-GB', { style: 'currency', currency: currencyCode, maximumFractionDigits: 2 }).format(number)
-    : (number: number) => numberFormat.format(number))
+    ? (number: number) => formatCurrency(number, currencyCode)
+    : (number: number) => formatNumber(number, { maximumFractionDigits: 2 }))
   return (
     <article className="kpi-card" aria-label={`${label}: ${value === null ? 'Not available' : valueFormat(value)}`}>
       <div className="kpi-heading">

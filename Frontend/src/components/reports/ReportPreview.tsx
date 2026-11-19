@@ -2,6 +2,7 @@ import { AlertCircle, Database, FileText } from 'lucide-react'
 import { reportTypeOptions } from './reportOptions'
 import type { ReportFormat, ReportType } from '../../services/reportsService'
 import type { DashboardSnapshot } from '../../types/analytics'
+import { formatCurrency, formatNumber } from '../../utils/format'
 import type { CustomerAnalyticsSnapshot } from '../../types/customerAnalytics'
 import type { MLStudioExperiment, MLStudioWorkspace } from '../../types/mlStudio'
 import type { ModelEvaluationSnapshot } from '../../types/modelEvaluation'
@@ -10,14 +11,13 @@ type ReportResource<T> = { status: 'idle' | 'loading' | 'success' | 'empty' | 'u
 type RankingMetric = 'salesValue' | 'unitsSold' | 'uniqueInvoices'
 
 function number(value?: number | null, digits = 2): string {
-  return value == null ? 'Data belum tersedia' : new Intl.NumberFormat('id-ID', { maximumFractionDigits: digits }).format(value)
+  return value == null ? '—' : formatNumber(value, { maximumFractionDigits: digits })
 }
 
 function money(value?: number | null, currency?: string | null): string {
   if (value == null) return 'Data belum tersedia'
   if (!currency || !/^[A-Z]{3}$/.test(currency)) return `${number(value)} (unit mata uang belum dilaporkan)`
-  try { return new Intl.NumberFormat('id-ID', { style: 'currency', currency, maximumFractionDigits: 0 }).format(value) }
-  catch { return `${number(value)} ${currency}` }
+  return formatCurrency(value, currency, 0)
 }
 
 function valueWithUnit(value: number | null | undefined, unit?: string | null): string {

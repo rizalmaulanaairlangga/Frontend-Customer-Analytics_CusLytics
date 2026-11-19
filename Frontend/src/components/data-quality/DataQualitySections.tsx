@@ -2,6 +2,7 @@ import { useId, useMemo, useState } from 'react'
 import { AlertTriangle, BarChart3, Check, ChevronDown, ChevronUp, CircleHelp, FileWarning, Info, Rows3, Search, ShieldAlert, ShieldCheck, Tags } from 'lucide-react'
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import type { ConceptualColumn, DataQualitySnapshot, QualityCategory, QualityColumn, QualityIndicatorId, RuleStatus, ValidationStatus } from '../../types/dataQuality'
+import { formatNumber } from '../../utils/format'
 
 interface DataQualitySectionsProps { snapshot: DataQualitySnapshot | null }
 
@@ -21,7 +22,11 @@ const categoryNames: Record<QualityCategory, string> = {
 }
 
 const categoryColors: Record<QualityCategory, string> = {
-  missing: 'var(--quality-amber)', duplicate: 'var(--quality-violet)', anomaly: 'var(--quality-red)', identity: 'var(--quality-teal)',
+  missing: 'var(--series-3)', duplicate: 'var(--series-2)', anomaly: 'var(--series-4)', identity: 'var(--series-1)',
+}
+
+function chartMotionAllowed() {
+  return typeof window.matchMedia !== 'function' || !window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
 const conceptualColumns: Array<{ name: ConceptualColumn; role: string }> = [
@@ -44,7 +49,7 @@ const pendingRules = [
 ]
 
 function numberText(value: number | null | undefined): string {
-  return value === null || value === undefined ? 'Belum tersedia' : new Intl.NumberFormat('id-ID').format(value)
+  return value === null || value === undefined ? '—' : formatNumber(value)
 }
 
 function validationText(status?: ValidationStatus): string {
@@ -148,14 +153,14 @@ export function DataQualitySections({ snapshot }: DataQualitySectionsProps) {
           <div className="quality-chart" aria-label="Quality findings by category">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={categories} layout="vertical" margin={{ top: 6, right: 24, left: 12, bottom: 4 }}>
-                <CartesianGrid stroke="var(--chart-grid)" horizontal={false} />
-                <XAxis type="number" allowDecimals={false} tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={{ stroke: 'var(--border)' }} tickLine={false} />
-                <YAxis type="category" dataKey="label" width={170} tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <CartesianGrid stroke="var(--chart-grid)" vertical={false} />
+                <XAxis type="number" allowDecimals={false} tick={{ fill: 'var(--text-muted)', fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="label" width={170} tick={{ fill: 'var(--text-secondary)', fontSize: 12 }} axisLine={false} tickLine={false} />
                 <Tooltip content={({ active, payload }) => {
                   const entry = payload?.[0]?.payload as (typeof categories)[number] | undefined
                   return active && entry ? <div className="quality-chart-tooltip"><strong>{entry.label}</strong><span>{numberText(entry.count)} temuan</span><small>{entry.detail ?? 'Agregat sebagaimana dilaporkan backend.'}</small></div> : null
                 }} />
-                <Bar dataKey="count" name="Jumlah temuan" radius={[0, 5, 5, 0]} isAnimationActive={false} onClick={(entry) => {
+                <Bar dataKey="count" name="Jumlah temuan" radius={[0, 5, 5, 0]} isAnimationActive={chartMotionAllowed()} animationDuration={700} animationEasing="ease-out" onClick={(entry) => {
                   if (entry && typeof entry === 'object' && 'category' in entry) setSelectedCategory(entry.category as QualityCategory)
                 }}>
                   {categories.map((item) => <Cell key={item.category} fill={categoryColors[item.category]} />)}

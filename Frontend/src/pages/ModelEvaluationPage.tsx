@@ -5,6 +5,8 @@ import { ClusterDistributionChart, ClusterScatterChart, InertiaComparisonChart, 
 import { modelEvaluationService } from '../services/modelEvaluationService'
 import type { ModelEvaluationService, ModelEvaluationSnapshot } from '../types/modelEvaluation'
 import type { MLStudioExperiment } from '../types/mlStudio'
+import { getUserFacingError } from '../services/userFacingError'
+import { formatNumber } from '../utils/format'
 
 type LoadState = 'loading' | 'success' | 'unavailable' | 'error'
 const axisOptions: { value: ScatterAxis; label: string }[] = [{ value: 'recency', label: 'Recency' }, { value: 'frequency', label: 'Frequency' }, { value: 'monetary', label: 'Monetary' }]
@@ -14,7 +16,7 @@ function formatDate(value: string) {
   const parsed = new Date(value)
   return Number.isNaN(parsed.getTime()) ? value : new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(parsed)
 }
-function number(value?: number | null, digits = 2) { return value == null ? 'Data belum tersedia' : new Intl.NumberFormat('en-US', { maximumFractionDigits: digits }).format(value) }
+function number(value?: number | null, digits = 2) { return value == null ? '—' : formatNumber(value, { maximumFractionDigits: digits }) }
 function configError(error: unknown) { return error instanceof Error && /not configured|VITE_|resource path/i.test(error.message) }
 function profileObservations(snapshot: ModelEvaluationSnapshot): string[] {
   const clusters = snapshot.clusters.filter((cluster) => cluster.profile)
@@ -56,7 +58,7 @@ export function ModelEvaluationPage({ service = modelEvaluationService }: { serv
       setExperiments(successful); setExperimentState('success')
     }).catch((error: unknown) => {
       if (controller.signal.aborted) return
-      setExperimentError(error instanceof Error ? error.message : 'Experiment metadata could not be loaded.')
+      setExperimentError(getUserFacingError(error))
       setExperimentState(configError(error) ? 'unavailable' : 'error')
     })
     return () => controller.abort()
@@ -75,7 +77,7 @@ export function ModelEvaluationPage({ service = modelEvaluationService }: { serv
     service.getEvaluation(selectedId, controller.signal).then((value) => { setSnapshot(value); setEvaluationRequestId(selectedId); setEvaluationState('success') }).catch((error: unknown) => {
       if (controller.signal.aborted) return
       setEvaluationRequestId(selectedId)
-      setEvaluationError(error instanceof Error ? error.message : 'Evaluation results could not be loaded.')
+      setEvaluationError(getUserFacingError(error))
       setEvaluationState(configError(error) ? 'unavailable' : 'error')
     })
     return () => controller.abort()

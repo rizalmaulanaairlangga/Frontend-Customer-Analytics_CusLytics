@@ -4,6 +4,8 @@ import type { LucideIcon } from 'lucide-react'
 import { DataQualitySections } from '../components/data-quality/DataQualitySections'
 import { dataQualityService, DataQualityConfigurationError, type DataQualityService } from '../services/dataQualityService'
 import type { DataQualitySnapshot } from '../types/dataQuality'
+import { formatNumber } from '../utils/format'
+import { getUserFacingError } from '../services/userFacingError'
 
 type LoadState = 'loading' | 'connected' | 'unconnected' | 'error'
 
@@ -12,7 +14,7 @@ interface DataQualityPageProps {
 }
 
 function formatCount(value?: number): string {
-  return value === undefined ? 'Belum tersedia' : new Intl.NumberFormat('id-ID').format(value)
+  return value === undefined ? '—' : formatNumber(value)
 }
 
 function formatDateRange(snapshot?: DataQualitySnapshot | null): string {
@@ -60,7 +62,7 @@ export function DataQualityPage({ service = dataQualityService }: DataQualityPag
       setRequest({ service, snapshot: result, state: result ? 'connected' : 'unconnected' })
     }).catch((reason: unknown) => {
       if (controller.signal.aborted) return
-      setRequest({ service, error: reason instanceof Error ? reason.message : 'Profil kualitas data gagal dimuat.', state: reason instanceof DataQualityConfigurationError ? 'unconnected' : 'error' })
+      setRequest({ service, error: getUserFacingError(reason), state: reason instanceof DataQualityConfigurationError ? 'unconnected' : 'error' })
     })
     return () => controller.abort()
   }, [service])
@@ -87,7 +89,7 @@ export function DataQualityPage({ service = dataQualityService }: DataQualityPag
         </span>
         <div className="connection-copy">
           <strong>{loadState === 'loading' ? 'Memuat profil dataset' : loadState === 'connected' ? snapshot?.dataset.readStatus === 'failed' ? 'Gagal membaca dataset' : 'Profil diterima dari backend' : loadState === 'error' ? 'Profil dataset gagal dibaca' : 'Belum terhubung'}</strong>
-          <span>{error || snapshot?.dataset.errorMessage || (loadState === 'connected' ? `Pemeriksaan terakhir: ${formatTimestamp(snapshot?.dataset.lastCheckedAt)}` : 'Menunggu data dari backend. Status ini bukan hasil pemeriksaan dataset.')}</span>
+          <span>{error || (snapshot?.dataset.readStatus === 'failed' ? 'Dataset belum dapat dibaca.' : loadState === 'connected' ? `Pemeriksaan terakhir: ${formatTimestamp(snapshot?.dataset.lastCheckedAt)}` : 'Menunggu data dari backend. Status ini bukan hasil pemeriksaan dataset.')}</span>
         </div>
         {loadState === 'connected' && snapshot?.source === 'api' && <span className="quality-source-badge">Data backend</span>}
       </section>
@@ -113,7 +115,6 @@ export function DataQualityPage({ service = dataQualityService }: DataQualityPag
 
       <DataQualitySections snapshot={snapshot} />
 
-      {readFailed && snapshot?.dataset.errorMessage && <p className="quality-error-note">Detail pembacaan: {snapshot.dataset.errorMessage}</p>}
       {readFailed && !error && snapshot?.dataset.readStatus === 'failed' && <p className="quality-error-note">Backend melaporkan dataset gagal dibaca. Periksa pesan error atau log yang disediakan backend.</p>}
       <p className="quality-last-checked"><FileSearch size={14} aria-hidden="true" /> Waktu pemeriksaan terakhir: {formatTimestamp(snapshot?.dataset.lastCheckedAt)}</p>
     </div>

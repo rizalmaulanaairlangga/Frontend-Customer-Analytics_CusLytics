@@ -48,15 +48,16 @@
 .intelligence-rank-index { color: var(--text-muted); font-size: 10px; font-variant-numeric: tabular-nums; }
 .intelligence-rank-main { display: grid; min-width: 0; gap: 6px; }
 .intelligence-rank-label { display: block; min-width: 0; overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
-.intelligence-rank-track { display: block; height: 6px; overflow: hidden; border-radius: 99px; background-color: var(--surface-muted); background-image: linear-gradient(to right, transparent calc(25% - 1px), var(--border) 25%); background-size: 25% 100%; }
-.intelligence-rank-track > span { display: block; height: 100%; border-radius: inherit; background: var(--indigo-500); transition: width 180ms ease; }
-.rank-coral .intelligence-rank-track > span { background: var(--geo-coral); }
+.intelligence-rank-track { display: block; height: 6px; overflow: hidden; border-radius: 99px; background: var(--bg-sunken); }
+.intelligence-rank-track > span { display: block; height: 100%; border-radius: inherit; background: var(--series-2); transform: scaleX(0); transform-origin: left; animation: ranking-fill 420ms var(--ease-out) forwards; }
+.rank-coral .intelligence-rank-track > span { background: var(--series-4); }
+.intelligence-ranks:has(.intelligence-rank:hover) .intelligence-rank:not(:hover) { opacity: .6; }
+.intelligence-rank { transition: opacity var(--dur-fast) ease-out, border-color var(--dur-fast) ease-out, background-color var(--dur-fast) ease-out; }
+@keyframes ranking-fill { to { transform: scaleX(1); } }
 .intelligence-rank-value { color: var(--navy-950); font-size: 11px; font-variant-numeric: tabular-nums; text-align: right; }
-.ranking-scale { display: flex; justify-content: space-between; margin: 10px 8px 0 46px; color: var(--text-muted); font-size: 9px; }
 .intelligence-empty { margin: 19px 0 10px; padding: 18px 12px; border: 1px dashed var(--border-strong); border-radius: 8px; color: var(--text-muted); background: var(--surface-muted); font-size: 11px; line-height: 1.5; text-align: center; }
 .country-panel { border-top: 2px solid var(--geo-coral); }
 .country-accent-mark { width: 30px; height: 7px; border-radius: 10px; background: linear-gradient(90deg, var(--geo-coral) 0 50%, var(--quality-amber) 50%); }
-.country-panel .intelligence-rank-track > span { background: linear-gradient(90deg, var(--geo-coral), var(--quality-amber)); }
 .products-table-panel { min-width: 0; }
 .products-table-heading { align-items: center; }
 .clear-product-selection { min-height: 31px; gap: 5px; font-size: 10px; }
@@ -122,12 +123,11 @@
   .intelligence-rank { grid-template-columns: 23px minmax(0, 1fr) minmax(56px, auto); gap: 7px; padding-inline: 5px; }
   .intelligence-rank-label { font-size: 10px; }
   .intelligence-rank-value { font-size: 10px; }
-  .ranking-scale { margin-left: 34px; }
   .product-table-footer { gap: 10px; }
   .pagination-controls { gap: 4px; }
   .pagination-controls .button { padding-inline: 6px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .intelligence-rank, .intelligence-rank-track > span { transition: none; }
+  .intelligence-rank, .intelligence-rank-track > span { transition: none; animation: none; transform: none; }
 }

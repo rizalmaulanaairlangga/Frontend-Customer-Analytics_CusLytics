@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CalendarDays, Clock3, Database, Layers3, UsersRound, UserRoundCheck, ArrowUpRight } from 'lucide-react'
 import { CustomerAnalyticsCharts } from '../components/customer-analytics/CustomerAnalyticsCharts'
+import { getUserFacingError } from '../services/userFacingError'
 import { CustomerDirectory } from '../components/customer-analytics/CustomerDirectory'
 import { customerAnalyticsService } from '../services/customerAnalyticsService'
 import type { CustomerAnalyticsService, CustomerAnalyticsSnapshot } from '../types/customerAnalytics'
+import { formatNumber } from '../utils/format'
 
 type LoadState = 'loading' | 'success' | 'unavailable' | 'error'
 interface RequestState { service: CustomerAnalyticsService; retry: number; state: LoadState; message?: string }
@@ -19,7 +21,7 @@ function MetricCard({ label, value, definition, icon: Icon, accent }: { label: s
 }
 
 function suppliedNumber(value: number | null | undefined): string {
-  return value == null ? 'Data belum tersedia' : new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }).format(value)
+  return value == null ? '—' : formatNumber(value, { maximumFractionDigits: 0 })
 }
 
 function segmentationLabel(status: CustomerAnalyticsSnapshot['summary']['segmentationStatus'] | undefined): string {
@@ -45,7 +47,7 @@ export function CustomerAnalyticsPage({ service = customerAnalyticsService }: { 
       setRequest({ service, retry, state: result ? 'success' : 'unavailable' })
     }).catch((reason: unknown) => {
       if (controller.signal.aborted) return
-      setRequest({ service, retry, state: isConfigurationError(reason) ? 'unavailable' : 'error', message: reason instanceof Error ? reason.message : 'Customer analytics could not be loaded.' })
+      setRequest({ service, retry, state: isConfigurationError(reason) ? 'unavailable' : 'error', message: getUserFacingError(reason) })
     })
     return () => controller.abort()
   }, [service, retry])
@@ -76,7 +78,6 @@ export function CustomerAnalyticsPage({ service = customerAnalyticsService }: { 
 
       <CustomerDirectory customers={ready?.customers ?? []} currencyCode={ready?.currencyCode} observationDate={ready?.summary.observationDate} analysisPeriod={ready?.summary.analysisPeriod} />
       {ready && <div className="customer-observation-note"><CalendarDays size={14} aria-hidden="true" /><span>{ready.summary.observationDate ? `Tanggal observasi RFM: ${ready.summary.observationDate}` : 'Tanggal observasi RFM belum dilaporkan.'}</span>{ready.summary.analysisPeriod && <span>Periode: {ready.summary.analysisPeriod.start} — {ready.summary.analysisPeriod.end}</span>}</div>}
-      {loadState === 'unavailable' && <p className="customer-integration-note">Atur `VITE_API_BASE_URL` dan resource path setelah kontrak endpoint disepakati. Tidak ada nilai demo yang ditampilkan di halaman ini.</p>}
     </div>
   )
 }
