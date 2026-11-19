@@ -1,4 +1,7 @@
 import { StrictMode } from 'react'
+import '@fontsource-variable/bricolage-grotesque'
+import '@fontsource-variable/instrument-sans'
+import '@fontsource-variable/jetbrains-mono'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import './styles/tokens.css'

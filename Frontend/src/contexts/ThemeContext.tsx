@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useLayoutEffect, useMemo, useState, type ReactNode } from 'react'
 import { ThemeContext, type ThemeMode } from './theme-context'
 const themeStorageKey = 'cuslytics-theme'
 
@@ -9,13 +9,14 @@ function readInitialTheme(): ThemeMode {
   } catch {
     // Browser storage can be unavailable; the document bootstrap remains the fallback.
   }
-  return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'
+  if (typeof window.matchMedia === 'function' && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark'
+  return 'light'
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<ThemeMode>(readInitialTheme)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     document.documentElement.dataset.theme = theme
     try {
       localStorage.setItem(themeStorageKey, theme)
@@ -23,7 +24,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       // Theme remains active for this session even when storage is blocked.
     }
     const themeMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
-    if (themeMeta) themeMeta.content = theme === 'dark' ? '#0d1524' : '#f5f7fa'
+    if (themeMeta) themeMeta.content = getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()
   }, [theme])
 
   const value = useMemo(() => ({ theme, toggleTheme: () => setTheme((current) => current === 'dark' ? 'light' : 'dark') }), [theme])

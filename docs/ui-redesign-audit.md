@@ -47,4 +47,22 @@ Audit baseline: `Frontend/src/`, before visual redesign edits. The error handlin
 
 ## Contrast baseline
 
-The current palette does not have a recorded contrast audit. The requested Paper & Ink / Night Teal semantic pairs will be checked before finalizing Phase 1 tokens; final measured ratios will be added here during that phase.
+Measured WCAG contrast ratios after Phase 1 token selection (normal text threshold 4.5:1):
+
+| Foreground / background | Ratio |
+| --- | ---: |
+| Light `--text-muted` `#5B6470` / `--bg-canvas` `#F3F1EC` | 5.31:1 |
+| Light `--text-subtle` (adjusted to `#626B76`) / `--bg-canvas` | 4.79:1 |
+| Dark `--text-muted` `#9BAEAB` / `--bg-canvas` `#0B1213` | 8.14:1 |
+| Light `--on-primary` `#FFFFFF` / `--primary` `#0F7C7A` | 5.02:1 |
+| Dark `--on-primary` `#06201E` / `--primary` `#35BFB0` | 7.49:1 |
+| Light success fg `#17633F` / soft `#E3F3EA` | 6.32:1 |
+| Dark success fg `#A7E8C9` / soft `#15352A` | 9.54:1 |
+| Light warning fg `#744707` / soft `#F9EBD0` | 6.73:1 |
+| Dark warning fg `#FFE0A0` / soft `#3A301D` | 10.13:1 |
+| Light danger fg `#8F2925` / soft `#F9E4E2` | 6.86:1 |
+| Dark danger fg `#FFC0BC` / soft `#3A2223` | 9.43:1 |
+| Light info fg `#20558E` / soft `#E4EEF8` | 6.50:1 |
+| Dark info fg `#B5D8FF` / soft `#1A2D3F` | 9.54:1 |
+
+The requested light `--text-subtle` `#6A727C` measures 4.32:1 on the canvas, so it was darkened slightly to `#626B76`. Saffron (`--accent`) is reserved for highlights and is not used as normal text on a white surface (2.65:1 there).
