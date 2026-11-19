@@ -9,6 +9,8 @@ import type { DashboardSnapshot } from '../types/analytics'
 import type { CustomerAnalyticsSnapshot } from '../types/customerAnalytics'
 import type { MLStudioWorkspace } from '../types/mlStudio'
 import type { ModelEvaluationSnapshot } from '../types/modelEvaluation'
+import { getUserFacingError } from '../services/userFacingError'
+import { NoticeBanner } from '../components/NoticeBanner'
 
 type Status = 'idle' | 'loading' | 'success' | 'empty' | 'unavailable' | 'error'
 type Resource<T> = { key: string; status: Status; data?: T; message?: string }
@@ -19,7 +21,7 @@ function isUnavailable(error: unknown): boolean {
 }
 
 function messageFrom(error: unknown): string {
-  return error instanceof Error ? error.message : 'Sumber laporan gagal dimuat.'
+  return getUserFacingError(error)
 }
 
 function dateRangeError(startDate: string, endDate: string): string {
@@ -149,7 +151,7 @@ export function ReportsPage({ sources = reportSources, exportService = reportsEx
       const anchor = document.createElement('a')
       anchor.href = objectUrl; anchor.download = result.filename; anchor.hidden = true
       document.body.append(anchor); anchor.click(); anchor.remove(); window.setTimeout(() => URL.revokeObjectURL(objectUrl), 0)
-      setExportState('succeeded'); setExportMessage(`Download started: ${result.filename}`)
+      setExportState('succeeded'); setExportMessage('Unduhan berhasil disiapkan.')
     } catch (error) {
       setExportState('failed'); setExportMessage(messageFrom(error))
     }
@@ -163,13 +165,15 @@ export function ReportsPage({ sources = reportSources, exportService = reportsEx
   const activeFilterCount = (isSalesReport ? Number(Boolean(startDate || endDate)) + Number(Boolean(country)) + Number(Boolean(reportType === 'product-performance' && rankingMetric !== 'salesValue')) : 0) + Number(Boolean(isMlReport && experimentId))
 
   return <div className="page-content reports-page">
-    <header className="page-heading reports-heading"><div><span className="eyebrow">DOCUMENTATION WORKSPACE</span><h1>Reports</h1><p>Siapkan dan ekspor hasil analitik untuk dokumentasi dan pemeriksaan lanjutan.</p></div><div className="reports-header-status"><span className="reports-status-dot"/><span>Ekspor memerlukan data dan layanan backend yang tersedia.</span></div></header>
+    <header className="page-heading reports-heading"><div><h1>Reports</h1><p>Siapkan dan ekspor hasil analitik untuk dokumentasi dan pemeriksaan lanjutan.</p></div></header>
+
+    <NoticeBanner severity="warning">Ekspor memerlukan data dan layanan backend yang tersedia.</NoticeBanner>
 
     <ReportTypeSelector reportType={reportType} onSelect={selectReport} options={reportTypeOptions} selectedStatus={statusText(status)} selectedSource={sourceLabel}/>
 
     {reportType && <div className="reports-builder-grid">
       <section className="panel reports-configuration" aria-label="Report configuration">
-        <div className="reports-section-heading"><div><span className="eyebrow">CONFIGURE</span><h2>{selectedOption?.title}</h2><p>{selectedOption?.description}</p></div>{activeFilterCount > 0 && <span className="reports-filter-count">{activeFilterCount} active</span>}</div>
+        <div className="reports-section-heading"><div><h2>{selectedOption?.title}</h2><p>{selectedOption?.description}</p></div>{activeFilterCount > 0 && <span className="reports-filter-count">{activeFilterCount} active</span>}</div>
         <div className="reports-form-grid">
           <fieldset className="reports-format-field"><legend>Output format</legend><label htmlFor="report-format">File format</label><select id="report-format" aria-label="Output format" value={format} onChange={(event) => { setFormat(event.target.value as ReportFormat); setExportState('idle'); setExportMessage('') }}><option value="csv">CSV · comma-separated values</option><option value="xlsx">Excel workbook (.xlsx)</option></select><p>{format === 'csv' ? 'CSV is a plain-text table format. Actual report downloads need backend support.' : 'Excel workbook format is selected; actual report downloads need backend support.'}</p></fieldset>
           {isSalesReport && <>

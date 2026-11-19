@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { BarChart3, Package, Receipt, UsersRound } from 'lucide-react'
 import { formatCurrency, formatNumber } from '../../utils/format'
+import { InfoTip } from '../InfoTip'
 
 interface KpiCardProps {
   label: string
@@ -19,10 +20,9 @@ export function KpiCard({ label, value, definition, icon, format, currencyCode }
     <article className="kpi-card" aria-label={`${label}: ${value === null ? 'Not available' : valueFormat(value)}`}>
       <div className="kpi-heading">
         <span className="kpi-icon" aria-hidden="true">{icon}</span>
-        <span className="kpi-label" title={definition}>{label}</span>
+        <span className="kpi-label">{label}</span><InfoTip label={`${label} information`}>{definition}</InfoTip>
       </div>
-      <p className="kpi-value">{value === null ? 'Not available' : valueFormat(value)}</p>
-      <p className="kpi-definition">{definition}</p>
+      <p className={`kpi-value${value === null ? ' is-unavailable' : ''}`} aria-label={value === null ? `${label}: Not available` : undefined}>{value === null ? '—' : valueFormat(value)}</p>
     </article>
   )
 }

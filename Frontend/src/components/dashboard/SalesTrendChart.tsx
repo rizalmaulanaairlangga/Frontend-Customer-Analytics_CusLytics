@@ -3,6 +3,7 @@ import {
 } from 'recharts'
 import type { DateInterval, TrendPoint } from '../../types/analytics'
 import { formatCurrency, formatNumber } from '../../utils/format'
+import { InfoTip } from '../InfoTip'
 
 function chartMotionAllowed() {
   return typeof window.matchMedia !== 'function' || !window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -25,9 +26,8 @@ export function SalesTrendChart({ data, interval, onIntervalChange, currencyCode
     <section className="panel trend-panel" aria-labelledby="trend-title">
       <div className="panel-heading trend-heading">
         <div>
-          <p className="eyebrow">Sales activity</p>
           <h2 id="trend-title">Sales trend</h2>
-          <p className="panel-subtitle">Transaction value across the selected period</p>
+          <InfoTip label="Transaction value information">Transaction value is not profit.</InfoTip>
         </div>
         {showIntervalControls && <div className="segmented-control" role="group" aria-label="Trend interval">
           {(['day', 'week', 'month'] as const).map((item) => (

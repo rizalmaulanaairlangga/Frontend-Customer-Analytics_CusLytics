@@ -51,7 +51,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <Sidebar collapsed={collapsed} mobileOpen={mobileOpen} onCollapse={() => setCollapsed((value) => !value)} onNavigate={closeNavigation} />
       <div className="app-main">
         <Header mobileOpen={mobileOpen} menuButtonRef={menuButtonRef} onOpenNavigation={() => setMobileOpenForPath(pathname)} />
-        <main className="main-content" id="main-content">{children}</main>
+        <main className="main-content" id="main-content"><div className="page-transition" key={pathname}>{children}</div></main>
       </div>
     </div>
   )

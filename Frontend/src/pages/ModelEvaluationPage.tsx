@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { AlertCircle, ArrowLeft, CircleHelp, Info, RotateCw } from 'lucide-react'
+import { ArrowLeft, CircleHelp, Info, RotateCw } from 'lucide-react'
 import { ClusterDistributionChart, ClusterScatterChart, InertiaComparisonChart, type ScatterAxis } from '../components/model-evaluation/ModelEvaluationCharts'
 import { modelEvaluationService } from '../services/modelEvaluationService'
 import type { ModelEvaluationService, ModelEvaluationSnapshot } from '../types/modelEvaluation'
 import type { MLStudioExperiment } from '../types/mlStudio'
 import { getUserFacingError } from '../services/userFacingError'
 import { formatNumber } from '../utils/format'
+import { StateBlock } from '../components/StateBlock'
 
 type LoadState = 'loading' | 'success' | 'unavailable' | 'error'
 const axisOptions: { value: ScatterAxis; label: string }[] = [{ value: 'recency', label: 'Recency' }, { value: 'frequency', label: 'Frequency' }, { value: 'monetary', label: 'Monetary' }]
@@ -32,7 +33,7 @@ function profileObservations(snapshot: ModelEvaluationSnapshot): string[] {
     return [`${label}: ${statistic} is lower in Cluster ${lowest.clusterId} (${number(lowest.profile?.[key], 1)}) than Cluster ${highest.clusterId} (${number(highest.profile?.[key], 1)}).`]
   })
 }
-function ErrorPanel({ message, retry }: { message: string; retry: () => void }) { return <div className="evaluation-state evaluation-error" role="alert"><AlertCircle aria-hidden="true"/><div><strong>{message}</strong><p>Periksa koneksi dan konfigurasi API, lalu coba lagi.</p><button className="button button-secondary" onClick={retry}><RotateCw size={15}/>Retry</button></div></div> }
+function ErrorPanel({ message, retry, unavailable = false }: { message: string; retry: () => void; unavailable?: boolean }) { return <StateBlock kind={unavailable ? 'unavailable' : 'error'} title={unavailable ? 'Backend belum tersedia' : 'Model Evaluation gagal dimuat'} detail={message} action={<button className="button button-secondary" onClick={retry}><RotateCw size={15}/>Coba lagi</button>} /> }
 
 export function ModelEvaluationPage({ service = modelEvaluationService }: { service?: ModelEvaluationService }) {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -112,12 +113,12 @@ export function ModelEvaluationPage({ service = modelEvaluationService }: { serv
 
   return <main className="page-content model-evaluation-page">
     <header className="page-heading evaluation-heading">
-      <div><span className="eyebrow">MODEL WORKSPACE</span><h1>Model Evaluation</h1><p>Evaluasi kualitas clustering, pahami profil pelanggan, dan bandingkan eksperimen K-Means.</p></div>
+      <div><h1>Model Evaluation</h1><p>Evaluasi kualitas clustering, pahami profil pelanggan, dan bandingkan eksperimen K-Means.</p></div>
       <Link className="button button-secondary" to={selectedExists ? `/ml-studio?experimentId=${encodeURIComponent(selectedId)}` : '/ml-studio'}><ArrowLeft size={16}/>{selectedExists ? 'Open selected experiment in ML Studio' : 'Back to ML Studio'}</Link>
     </header>
 
-    {experimentState === 'loading' && <div className="evaluation-state" role="status">Loading experiment metadata…</div>}
-    {(experimentState === 'error' || experimentState === 'unavailable') && <ErrorPanel message={experimentError || 'Experiment metadata could not be loaded.'} retry={retryAll}/>}
+    {experimentState === 'loading' && <StateBlock kind="loading" title="Memuat experiment metadata" detail="Menunggu respons ML Studio." />}
+    {(experimentState === 'error' || experimentState === 'unavailable') && <ErrorPanel message={experimentError || 'Experiment metadata could not be loaded.'} retry={retryAll} unavailable={experimentState === 'unavailable'} />}
     {experimentState === 'success' && experiments.length === 0 && <section className="panel evaluation-empty"><CircleHelp aria-hidden="true"/><div><h2>No successful experiment is available</h2><p>Hasil evaluasi akan tersedia setelah eksperimen K-Means berhasil dijalankan dan backend terhubung.</p><Link to="/ml-studio">Open ML Studio</Link></div></section>}
     {experimentState === 'success' && experiments.length > 0 && <>
       <section className="panel evaluation-toolbar">
@@ -129,11 +130,11 @@ export function ModelEvaluationPage({ service = modelEvaluationService }: { serv
         <span className={`evaluation-source evaluation-source-${displaySnapshot ? 'success' : visibleEvaluationState}`} aria-live="polite"><span className="status-dot"/>{displaySnapshot ? 'Backend results loaded' : visibleEvaluationState === 'loading' ? 'Loading evaluation results' : visibleEvaluationState === 'unavailable' ? 'Backend unavailable' : 'Evaluation results unavailable'}</span>
       </section>
       {!selectedExists && <section className="panel evaluation-empty" role="status"><CircleHelp aria-hidden="true"/><div><h2>Experiment is unavailable</h2><p>The experiment ID in this link is not present in the successful experiment history.</p><button className="text-button" onClick={() => chooseExperiment(experiments[0].id)}>Show latest successful experiment</button></div></section>}
-      {selectedExists && (visibleEvaluationState === 'loading' ? <div className="evaluation-state" role="status">Loading results for {selectedId}…</div> : null)}
-      {selectedExists && (visibleEvaluationState === 'error' || visibleEvaluationState === 'unavailable') && <ErrorPanel message={evaluationError || 'Evaluation resource is not configured.'} retry={retryAll}/>}
+      {selectedExists && (visibleEvaluationState === 'loading' ? <StateBlock kind="loading" title="Memuat hasil evaluasi" detail={`Menunggu hasil untuk ${selectedId}.`} /> : null)}
+      {selectedExists && (visibleEvaluationState === 'error' || visibleEvaluationState === 'unavailable') && <ErrorPanel message={evaluationError || 'Sumber evaluasi tidak tersedia.'} retry={retryAll} unavailable={visibleEvaluationState === 'unavailable'} />}
       {selectedExists && displaySnapshot && <>
         <section className="panel evaluation-experiment-card">
-          <div className="evaluation-section-title"><div><span className="eyebrow">SELECTED RUN</span><h2>Experiment summary</h2></div><span className="evaluation-run-status">Succeeded</span></div>
+          <div className="evaluation-section-title"><div><h2>Experiment summary</h2></div><span className="evaluation-run-status">Succeeded</span></div>
           <dl className="evaluation-metadata">
             <div><dt>Experiment ID</dt><dd>{displaySnapshot.experiment.id}</dd></div><div><dt>Timestamp</dt><dd>{formatDate(displaySnapshot.experiment.timestamp)}</dd></div><div><dt>K</dt><dd>{displaySnapshot.experiment.k}</dd></div><div><dt>Random seed</dt><dd>{number(displaySnapshot.experiment.randomSeed, 0)}</dd></div><div><dt>Preprocessing version</dt><dd>{displaySnapshot.experiment.preprocessingVersion || 'Not reported'}</dd></div><div><dt>Customers evaluated</dt><dd>{number(displaySnapshot.experiment.customersEvaluated, 0)}</dd></div>
           </dl>

@@ -16,7 +16,7 @@ export function ProductPerformance({ products, currencyCode }: ProductPerformanc
   return (
     <section className="panel product-panel" aria-labelledby="product-title">
       <div className="panel-heading">
-        <div><p className="eyebrow">Merchandising</p><h2 id="product-title">Product performance</h2></div>
+        <div><h2 id="product-title">Product performance</h2></div>
         <label className="compact-select"><span className="sr-only">Rank products by</span>
           <select value={metric} onChange={(event) => setMetric(event.target.value as RankMetric)}>
             <option value="salesValue">Transaction value</option>

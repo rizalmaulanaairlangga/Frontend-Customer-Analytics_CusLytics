@@ -6,7 +6,7 @@ import { formatCurrency, formatNumber as formatNumericValue } from '../../utils/
 type SortKey = 'unitsSold' | 'salesValue' | 'uniqueInvoices'
 
 function formatNumber(value?: number | null, currencyCode?: string): string {
-  if (value === undefined || value === null) return 'Not available'
+  if (value === undefined || value === null) return '—'
   return currencyCode
     ? formatCurrency(value, currencyCode)
     : formatNumericValue(value, { maximumFractionDigits: 2 })
@@ -33,7 +33,7 @@ export function ProductTable({ products, currencyCode, selectedId, onClearSelect
   return (
     <section className="panel products-table-panel" aria-labelledby="products-table-title">
       <div className="panel-heading products-table-heading">
-        <div><p className="eyebrow">Product detail</p><h2 id="products-table-title">Product table</h2></div>
+        <div><h2 id="products-table-title">Product table</h2></div>
         {selectedId && <button className="button button-secondary clear-product-selection" type="button" onClick={onClearSelection}><X size={14} aria-hidden="true" /> Show all products</button>}
       </div>
       {selectedId && <p className="selected-product-note" role="status">Selected product: {selectedId}</p>}

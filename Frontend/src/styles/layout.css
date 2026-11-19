@@ -22,11 +22,11 @@
 .brand-mark { display: grid; width: 34px; height: 34px; flex: 0 0 34px; place-items: center; border: 1px solid var(--primary); border-radius: 9px; color: var(--on-primary); background: var(--primary); font: 700 18px/1 var(--font-display); }
 .brand-copy { display: grid; min-width: 0; gap: 1px; }
 .brand-copy strong { color: var(--sidebar-strong); font-size: 15px; letter-spacing: -.2px; }
-.brand-copy span { color: var(--sidebar-muted); font-size: 11px; }
+.brand-copy span { color: var(--sidebar-muted); font-size: 12px; }
 .collapse-button { display: grid; width: 30px; height: 30px; flex: 0 0 30px; margin-left: auto; place-items: center; border: 0; border-radius: 6px; color: var(--sidebar-control); background: transparent; cursor: pointer; }
 .collapse-button:hover { color: var(--sidebar-strong); background: var(--sidebar-control-hover); }
 .collapse-button svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.navigation-caption { padding: 13px 10px 8px; color: var(--sidebar-caption); font-size: 10px; font-weight: 650; letter-spacing: .08em; }
+.navigation-caption { padding: 13px 10px 8px; color: var(--sidebar-caption); font-size: 12px; font-weight: 650; letter-spacing: .08em; }
 .primary-navigation { display: grid; gap: 4px; }
 .navigation-link { position: relative; display: flex; min-height: 42px; align-items: center; gap: 12px; overflow: hidden; padding: 0 10px; border-radius: 8px; color: var(--sidebar-fg); font-size: 14px; font-weight: 500; text-decoration: none; white-space: nowrap; transition: color var(--dur-fast) ease-out, background-color var(--dur-fast) ease-out; }
 .navigation-link:hover { color: var(--sidebar-strong); background: var(--sidebar-hover); }
@@ -42,6 +42,8 @@
 .sidebar-collapsed .navigation-link.is-active::before { inset-block: 10px; }
 
 .app-main { min-height: 100vh; margin-left: var(--sidebar-width); }
+.page-transition { animation: page-enter var(--dur-base) var(--ease-out) both; }
+@keyframes page-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .topbar { position: sticky; z-index: 10; top: 0; display: flex; height: 56px; align-items: center; justify-content: space-between; gap: 20px; padding: 0 34px; border-bottom: 1px solid var(--border); background: var(--surface); transition: background-color var(--dur-base) ease-out, border-color var(--dur-base) ease-out; }
 .breadcrumbs { display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 12px; }
 .breadcrumbs strong { color: var(--text-secondary); font-weight: 600; }
@@ -52,11 +54,11 @@
 .theme-toggle svg { flex: 0 0 auto; animation: theme-icon-enter var(--dur-base) var(--ease-out); }
 @keyframes theme-icon-enter { from { opacity: 0; transform: rotate(-35deg) scale(.8); } to { opacity: 1; transform: rotate(0) scale(1); } }
 .mobile-menu-button svg { width: 20px; height: 20px; }
-.main-content { width: min(100%, 1540px); margin: 0 auto; padding: 30px 34px 40px; }
+.main-content { width: min(100%, 1350px); margin: 0 auto; padding: 30px 34px 40px; }
 .drawer-scrim { display: none; }
 
 .placeholder-page { max-width: 740px; padding: 50px 0; }
-.placeholder-page h1 { margin-bottom: 12px; font-size: 32px; letter-spacing: -.7px; }
+.placeholder-page h1 { margin-bottom: 12px; font-size: var(--fs-display); letter-spacing: -.7px; }
 .placeholder-page > p:not(.eyebrow) { color: var(--text-secondary); }
 .placeholder-detail { display: flex; align-items: center; gap: 14px; margin: 28px 0; padding: 18px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
 .placeholder-detail strong { display: block; margin-bottom: 3px; color: var(--text); font-size: 13px; }
@@ -86,7 +88,7 @@
 }
 
 @media (max-width: 400px) {
-  .breadcrumbs { gap: 7px; font-size: 11px; }
+  .breadcrumbs { gap: 7px; font-size: 12px; }
   .breadcrumbs { flex: 1 1 auto; min-width: 0; }
   .breadcrumbs > span:first-child, .breadcrumb-divider { display: none; }
   .breadcrumbs strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -96,5 +98,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .page-transition { animation: none; }
   .app-sidebar, .navigation-link, .navigation-icon, .topbar, .theme-toggle, .theme-toggle svg { transition: none; animation: none; }
 }

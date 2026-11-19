@@ -9,7 +9,7 @@ function StatusValue({ value }: { value?: string }) {
 export function SystemStatus({ status }: SystemStatusProps) {
   return (
     <section className="system-status" aria-labelledby="system-status-title">
-      <div className="system-heading"><div><p className="eyebrow">Environment</p><h2 id="system-status-title">System status</h2></div>
+      <div className="system-heading"><div><h2 id="system-status-title">System status</h2></div>
         <p>Status is shown only when provided by the selected data source.</p></div>
       <div className="system-grid">
         <div><span>Dataset</span><StatusValue value={status.dataset} /></div>

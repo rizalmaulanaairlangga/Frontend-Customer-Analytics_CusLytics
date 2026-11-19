@@ -1,6 +1,7 @@
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import type { CountryRank, ProductRank, TrendPoint } from '../../types/analytics'
 import { formatCurrency, formatNumber } from '../../utils/format'
+import { InfoTip } from '../InfoTip'
 
 function chartMotionAllowed() {
   return typeof window.matchMedia !== 'function' || !window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -48,7 +49,7 @@ export function ProductRanking({
   return (
     <section className="panel intelligence-panel" aria-labelledby="product-ranking-title">
       <div className="panel-heading intelligence-panel-heading">
-        <div><h2 id="product-ranking-title">Product ranking</h2></div>
+        <div><h2 id="product-ranking-title">Product ranking</h2><InfoTip label="Transaction value information">Transaction value is not profit.</InfoTip></div>
         <div className="intelligence-controls">
           <div className="segmented-control" role="group" aria-label="Product ranking metric">
             <button type="button" aria-pressed={metric === 'salesValue'} onClick={() => onMetricChange('salesValue')}>Transaction Value</button>
@@ -69,8 +70,8 @@ export function CountryRanking({ countries, currencyCode, selectedCountry, onSel
   const ranked = [...(countries ?? [])].sort((a, b) => b.transactionValue - a.transactionValue)
   return (
     <section className="panel country-panel" aria-labelledby="country-ranking-title">
-      <div className="panel-heading"><div><h2 id="country-ranking-title">Sales by Country</h2></div><span className="country-accent-mark" aria-hidden="true" /></div>
-      <p className="panel-subtitle">Ranked by transaction value. Transaction value is not profit.</p>
+      <div className="panel-heading"><div><h2 id="country-ranking-title">Sales by Country</h2><InfoTip label="Transaction value information">Transaction value is not profit.</InfoTip></div></div>
+      <p className="panel-subtitle">Ranked by transaction value.</p>
       {ranked.length ? <RankingRows items={ranked.map((item) => ({ id: item.country, label: `${item.country}${item.uniqueInvoices == null ? '' : ` · ${formatValue(item.uniqueInvoices)} invoices`}`, value: item.transactionValue }))} accent="coral" selectedId={selectedCountry || undefined} onSelect={onSelect} format={(value) => formatValue(value, currencyCode)} /> : <p className="intelligence-empty">Country aggregates are not available from the connected source.</p>}
     </section>
   )

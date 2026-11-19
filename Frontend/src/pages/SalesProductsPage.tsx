@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
-import { BarChart3, Clock3, Database, Info, Package, Receipt, UsersRound } from 'lucide-react'
+import { BarChart3, Clock3, Database, Package, Receipt, UsersRound } from 'lucide-react'
 import { FilterBar } from '../components/dashboard/FilterBar'
 import { KpiCard } from '../components/dashboard/KpiCard'
 import { SalesTrendChart } from '../components/dashboard/SalesTrendChart'
 import { CountryRanking, InvoiceUnitsTrend, ProductRanking, type ProductMetric, type TrendMetric } from '../components/sales-products/SalesProductsCharts'
 import { ProductTable } from '../components/sales-products/ProductTable'
 import { StateMessage } from '../components/StateMessage'
-import { StatusBadge } from '../components/StatusBadge'
 import { analyticsService } from '../services/analyticsService'
 import type { AnalyticsService, DashboardFilters, DashboardSnapshot, DateInterval } from '../types/analytics'
+import { getUserFacingError } from '../services/userFacingError'
+import { NoticeBanner } from '../components/NoticeBanner'
 
 const initialFilters: DashboardFilters = { startDate: '', endDate: '', country: '' }
 type LoadState = 'loading' | 'success' | 'unavailable' | 'error'
@@ -17,11 +18,6 @@ interface RequestState { key: string; state: LoadState; error?: string }
 function isConfigurationError(reason: unknown): boolean {
   const message = reason instanceof Error ? reason.message : ''
   return message.includes('VITE_API_BASE_URL') || message.includes('VITE_ANALYTICS_RESOURCE_PATH') || message.includes('VITE_DATA_MODE')
-}
-
-function formatRange(filters: DashboardFilters): string {
-  const period = filters.startDate || filters.endDate ? `${filters.startDate || 'Any date'} to ${filters.endDate || 'Any date'}` : 'All available dates'
-  return `${period} · ${filters.country || 'All countries'}`
 }
 
 export function SalesProductsPage({ service = analyticsService }: { service?: AnalyticsService }) {
@@ -47,7 +43,7 @@ export function SalesProductsPage({ service = analyticsService }: { service?: An
       setRequest({ key: requestKey, state: 'success' })
     }).catch((reason: unknown) => {
       if (controller.signal.aborted) return
-      setRequest({ key: requestKey, state: isConfigurationError(reason) ? 'unavailable' : 'error', error: reason instanceof Error ? reason.message : 'Sales and product analytics could not be loaded.' })
+      setRequest({ key: requestKey, state: isConfigurationError(reason) ? 'unavailable' : 'error', error: getUserFacingError(reason) })
     })
     return () => controller.abort()
   }, [service, appliedFilters, interval, retry, requestKey])
@@ -69,8 +65,7 @@ export function SalesProductsPage({ service = analyticsService }: { service?: An
   return (
     <div className="sales-products-page">
       <header className="sales-products-heading">
-        <div><p className="eyebrow">Sales intelligence</p><h1>Sales &amp; Products</h1><p className="page-description">Analisis tren penjualan dan performa produk berdasarkan periode dan negara.</p></div>
-        {ready && <StatusBadge tone={ready.source === 'demo' ? 'demo' : 'success'}>{ready.source === 'demo' ? 'Demo Data' : 'Backend Data'}</StatusBadge>}
+        <div><h1>Sales &amp; Products</h1><p className="page-description">Analisis tren penjualan dan performa produk berdasarkan periode dan negara.</p></div>
       </header>
 
       <section className="filter-section sales-filter-section" aria-labelledby="sales-filters-title">
@@ -83,9 +78,8 @@ export function SalesProductsPage({ service = analyticsService }: { service?: An
         <span className="sales-source-icon" aria-hidden="true">{loadState === 'loading' ? <Clock3 size={16} /> : <Database size={16} />}</span>
         <span>{loadState === 'loading' ? 'Loading sales and product analytics' : loadState === 'unavailable' ? 'Belum terhubung ke backend' : loadState === 'error' ? 'Analytics request failed. Details are shown below.' : ready?.source === 'demo' ? 'Illustrative demo data, not actual dataset results.' : 'Analytics response received from the connected source.'}</span>
       </div>}
-      {loadState === 'unavailable' && <p className="sales-unavailable-detail">{error}. Configure the confirmed API path and base URL to connect this page.</p>}
-      {loadState === 'success' && ready?.source === 'demo' && <div className="demo-notice" role="note"><span className="demo-notice-mark" aria-hidden="true">D</span><p><strong>Illustrative demo fixture.</strong> These figures exercise the page controls and are not actual dataset results. Demo filters do not recalculate the fixture.</p></div>}
-      <p className="metric-integrity-note"><Info size={14} aria-hidden="true" /> Transaction Value is not profit.</p>
+      {loadState === 'unavailable' && <p className="sales-unavailable-detail">{error}</p>}
+      {loadState === 'success' && ready?.source === 'demo' && <NoticeBanner severity="info" className="demo-notice"><span><strong>Demo fixture:</strong> these values are illustrative, do not represent actual dataset results, and do not recalculate when filters change.</span></NoticeBanner>}
       {loadState === 'loading' ? <div className="sales-loading" role="status" aria-label="Sales and Products loading"><div className="skeleton skeleton-kpi" /><div className="skeleton skeleton-chart" /><div className="skeleton skeleton-panel" /></div> : <div className="sales-analytics-content">
       {hasNoResults && <p className="sales-no-results" role="status">No analytics results are available for these filters. Values and charts remain empty until the source reports results.</p>}
 
@@ -96,16 +90,16 @@ export function SalesProductsPage({ service = analyticsService }: { service?: An
         <KpiCard label="Identified Customers" value={ready?.metrics.identifiedCustomers.value ?? null} definition={ready?.metrics.identifiedCustomers.definition ?? 'Customers with identifiers reported by the selected source.'} icon={<UsersRound size={19} aria-hidden="true" />} />
       </section>
 
-      <div className="applied-sales-filters"><span className="active-filter-dot" aria-hidden="true" /><span>Applied: {formatRange(appliedFilters)}</span><span className="applied-interval">{interval === 'day' ? 'Daily' : interval === 'week' ? 'Weekly' : 'Monthly'} view</span>{ready && !ready.currencyCode && <span className="currency-note">Currency unit not provided by this source.</span>}</div>
+      {(appliedFilters.startDate || appliedFilters.endDate || appliedFilters.country) && <div className="applied-sales-filters" aria-label="Applied filters">{(appliedFilters.startDate || appliedFilters.endDate) && <span className="filter-chip">{appliedFilters.startDate || 'Any date'} Ã¢â‚¬â€œ {appliedFilters.endDate || 'Any date'}</span>}{appliedFilters.country && <span className="filter-chip">{appliedFilters.country}</span>}<span className="applied-interval">{interval === 'day' ? 'Daily' : interval === 'week' ? 'Weekly' : 'Monthly'} view</span>{ready && !ready.currencyCode && <span className="currency-note">Currency unit not provided by this source.</span>}</div>}
 
       <SalesTrendChart data={ready?.trend ?? []} interval={interval} onIntervalChange={setInterval} currencyCode={ready?.currencyCode} showIntervalControls={false} />
-      <InvoiceUnitsTrend data={ready?.trend ?? []} metric={trendMetric} onMetricChange={setTrendMetric} interval={interval} />
+      <InvoiceUnitsTrend data={ready?.trend ?? []} metric={trendMetric} onMetricChange={setTrendMetric} />
 
       <ProductRanking products={ready?.products ?? []} metric={productMetric} count={rankCount} currencyCode={ready?.currencyCode} selectedId={selectedProduct ?? undefined} onMetricChange={setProductMetric} onCountChange={setRankCount} onSelect={setSelectedProduct} />
       <ProductTable products={ready?.products ?? []} currencyCode={ready?.currencyCode} selectedId={selectedProduct} onClearSelection={() => setSelectedProduct(null)} />
 
       <CountryRanking countries={ready?.countries} currencyCode={ready?.currencyCode} selectedCountry={appliedFilters.country} onSelect={selectCountry} />
-      {loadState === 'error' && <StateMessage kind="error" title="Sales analytics could not be loaded" detail={error ?? 'Check the API connection and retry.'} action={{ label: 'Retry', onClick: () => setRetry((count) => count + 1) }} />}
+      {loadState === 'error' && <StateMessage kind="error" title="Sales analytics could not be loaded" detail={error ?? 'Check the API connection and retry.'} action={{ label: 'Coba lagi', onClick: () => setRetry((count) => count + 1) }} />}
       </div>}
     </div>
   )

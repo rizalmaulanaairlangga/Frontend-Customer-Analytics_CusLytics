@@ -7,10 +7,11 @@ import { SalesTrendChart } from '../components/dashboard/SalesTrendChart'
 import { SystemStatus } from '../components/dashboard/SystemStatus'
 import { LoadingState } from '../components/LoadingState'
 import { StateMessage } from '../components/StateMessage'
-import { StatusBadge } from '../components/StatusBadge'
+import { NoticeBanner } from '../components/NoticeBanner'
 import { History } from 'lucide-react'
 import { analyticsService } from '../services/analyticsService'
 import type { AnalyticsService, DashboardFilters, DashboardSnapshot, DateInterval } from '../types/analytics'
+import { getUserFacingError } from '../services/userFacingError'
 
 const initialFilters: DashboardFilters = { startDate: '', endDate: '', country: '' }
 type RequestState = 'loading' | 'success' | 'error'
@@ -36,7 +37,7 @@ export function OverviewPage({ service = analyticsService }: OverviewPageProps) 
       setRequest({ key: requestKey, state: 'success' })
     }).catch((error: unknown) => {
       if (controller.signal.aborted) return
-      setRequest({ key: requestKey, state: 'error', error: error instanceof Error ? error.message : 'Unable to load dashboard data.' })
+      setRequest({ key: requestKey, state: 'error', error: getUserFacingError(error) })
     })
     return () => controller.abort()
   }, [service, appliedFilters, interval, retryCount, requestKey])
@@ -54,11 +55,9 @@ export function OverviewPage({ service = analyticsService }: OverviewPageProps) 
     <div className="overview-page">
       <div className="overview-title-row">
         <div>
-          <p className="eyebrow">Customer analytics</p>
           <h1>Overview Dashboard</h1>
           <p className="page-description">Ringkasan performa penjualan dan perilaku pelanggan dari dataset referensi.</p>
         </div>
-        {snapshot && <StatusBadge tone={snapshot.source === 'demo' ? 'demo' : 'success'}>{snapshot.source === 'demo' ? 'Demo Data' : 'Backend Data'}</StatusBadge>}
       </div>
 
       <section className="filter-section" aria-labelledby="filters-title">
@@ -70,21 +69,19 @@ export function OverviewPage({ service = analyticsService }: OverviewPageProps) 
       </section>
 
       {snapshot?.source === 'demo' && (
-        <div className="demo-notice" role="note">
-          <span className="demo-notice-mark" aria-hidden="true">D</span>
-          <p><strong>Illustrative demo fixture.</strong> These values are not actual dataset results and are not recalculated for selected filters. Applied filters are passed through the demo service interface for integration preview.</p>
-        </div>
+        <NoticeBanner severity="info" className="demo-notice"><span><strong>Demo fixture:</strong> these values are illustrative, do not represent actual dataset results, and do not recalculate when filters change.</span></NoticeBanner>
       )}
 
       {requestState === 'loading' && !snapshot ? <LoadingState /> : requestState === 'error' ? (
-        <StateMessage kind="error" title="Dashboard data could not be loaded" detail={request.error ?? 'Unable to load dashboard data.'} action={{ label: 'Retry', onClick: () => setRetryCount((count) => count + 1) }} />
+        <StateMessage kind="error" title="Dashboard data could not be loaded" detail={request.error ?? 'Unable to load dashboard data.'} action={{ label: 'Coba lagi', onClick: () => setRetryCount((count) => count + 1) }} />
       ) : hasNoResults && requestState === 'success' ? (
         <StateMessage title="No results for these filters" detail="Try another date range or choose all countries." />
       ) : snapshot ? (
         <>
           {requestState === 'loading' && <p className="refreshing-note" role="status">Updating results for the applied filters…</p>}
-          <div className="active-filter-summary"><span className="active-filter-dot" />
-            <span>Applied: {snapshot.filters.startDate || snapshot.filters.endDate ? `${snapshot.filters.startDate || 'Any date'} to ${snapshot.filters.endDate || 'Any date'}` : 'All available dates'} · {snapshot.filters.country || 'All countries'}</span>
+          <div className="active-filter-summary" aria-label="Applied filters">
+            {(snapshot.filters.startDate || snapshot.filters.endDate) && <span className="filter-chip">{snapshot.filters.startDate || 'Any date'} – {snapshot.filters.endDate || 'Any date'}</span>}
+            {snapshot.filters.country && <span className="filter-chip">{snapshot.filters.country}</span>}
             {!snapshot.currencyCode && <span className="currency-note">Currency unit not provided by this source</span>}
           </div>
           <section className="kpi-grid" aria-label="Overview metrics">

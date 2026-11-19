@@ -3,11 +3,12 @@ import { Link } from 'react-router-dom'
 import { ArrowUpRight, ChevronRight, X } from 'lucide-react'
 import type { ActionCenterSnapshot, ActionEvidenceMetric, ActionRecommendation } from '../../types/actionCenter'
 import { categoryLabels, sourceLabel } from './actionCenterLabels'
+import { formatNumber } from '../../utils/format'
 
 function metricText(metric?: ActionEvidenceMetric | null): string {
-  if (!metric || metric.value == null) return 'Data belum tersedia'
-  const value = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 }).format(metric.value)
-  return metric.unit ? `${value} ${metric.unit}` : `${value} · satuan tidak dilaporkan`
+  if (!metric || metric.value == null) return '—'
+  const value = formatNumber(metric.value, { maximumFractionDigits: 2 })
+  return metric.unit ? `${value} ${metric.unit}` : `${value} Â· satuan tidak dilaporkan`
 }
 
 function evidenceSummary(recommendation: ActionRecommendation): string[] {
@@ -17,10 +18,10 @@ function evidenceSummary(recommendation: ActionRecommendation): string[] {
   if (evidence.recency?.value != null) lines.push(`Recency: ${metricText(evidence.recency)}`)
   if (evidence.frequency?.value != null) lines.push(`Frequency: ${metricText(evidence.frequency)}`)
   if (evidence.monetary?.value != null) lines.push(`Monetary (nilai transaksi, bukan laba): ${metricText(evidence.monetary)}`)
-  if (evidence.cluster) lines.push(`Cluster ${evidence.cluster.clusterId}${evidence.cluster.experimentId ? ` · Experiment ${evidence.cluster.experimentId}` : ''}`)
-  if (evidence.customersAnalyzed != null) lines.push(`${new Intl.NumberFormat('id-ID').format(evidence.customersAnalyzed)} pelanggan dianalisis`)
+  if (evidence.cluster) lines.push(`Cluster ${evidence.cluster.clusterId}${evidence.cluster.experimentId ? ` Â· Experiment ${evidence.cluster.experimentId}` : ''}`)
+  if (evidence.customersAnalyzed != null) lines.push(`${formatNumber(evidence.customersAnalyzed)} pelanggan dianalisis`)
   const period = evidence.analysisPeriod
-  if (period) lines.push(`Periode: ${period.start} – ${period.end}`)
+  if (period) lines.push(`Periode: ${period.start} â€“ ${period.end}`)
   return lines
 }
 
@@ -73,10 +74,10 @@ export function RecommendationEvidenceDrawer({ recommendation, snapshot, onClose
 
   return <div className="action-drawer-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
     <section className="action-evidence-drawer" role="dialog" aria-modal="true" aria-labelledby="action-evidence-title">
-      <header className="action-drawer-header"><div><span className="eyebrow">RECOMMENDATION EVIDENCE</span><h2 id="action-evidence-title">{recommendation.title}</h2></div><button ref={closeButton} className="action-drawer-close" type="button" aria-label="Close evidence" onClick={onClose}><X size={18}/></button></header>
+      <header className="action-drawer-header"><div><h2 id="action-evidence-title">{recommendation.title}</h2></div><button ref={closeButton} className="action-drawer-close" type="button" aria-label="Close evidence" onClick={onClose}><X size={18}/></button></header>
       <div className="action-drawer-body">
         <section><h3>Finding</h3><p>{recommendation.finding}</p>{recommendation.interpretation && <p><strong>Interpretation:</strong> {recommendation.interpretation}</p>}</section>
-        <section><h3>Supporting evidence</h3>{evidence ? <dl className="action-evidence-metrics">{metricRows.map((row) => <div key={row.label}><dt>{row.label}</dt><dd>{row.value}</dd>{row.source && <small>Source: {row.source}</small>}</div>)}<div><dt>Cluster</dt><dd>{evidence.cluster ? `Cluster ${evidence.cluster.clusterId}` : 'Data belum tersedia'}</dd>{evidence.cluster?.experimentId && <small>Experiment ID: {evidence.cluster.experimentId}</small>}</div><div><dt>Analysis population</dt><dd>{evidence.customersAnalyzed == null ? 'Data belum tersedia' : `${new Intl.NumberFormat('id-ID').format(evidence.customersAnalyzed)} customers`}</dd></div><div><dt>Observation period</dt><dd>{period ? `${period.start} – ${period.end}` : 'Data belum tersedia'}</dd></div></dl> : <p className="action-unavailable-evidence">Bukti belum disediakan oleh sumber rekomendasi.</p>}{(evidence?.sourceLabel || snapshot.sourceLabel) && <p className="action-evidence-source">Source: {evidence?.sourceLabel || snapshot.sourceLabel}</p>}</section>
+        <section><h3>Supporting evidence</h3>{evidence ? <dl className="action-evidence-metrics">{metricRows.map((row) => <div key={row.label}><dt>{row.label}</dt><dd>{row.value}</dd>{row.source && <small>Source: {row.source}</small>}</div>)}<div><dt>Cluster</dt><dd>{evidence.cluster ? `Cluster ${evidence.cluster.clusterId}` : 'â€”'}</dd>{evidence.cluster?.experimentId && <small>Experiment ID: {evidence.cluster.experimentId}</small>}</div><div><dt>Analysis population</dt><dd>{evidence.customersAnalyzed == null ? 'â€”' : `${formatNumber(evidence.customersAnalyzed)} customers`}</dd></div><div><dt>Observation period</dt><dd>{period ? `${period.start} â€“ ${period.end}` : 'â€”'}</dd></div></dl> : <p className="action-unavailable-evidence">Bukti belum disediakan oleh sumber rekomendasi.</p>}{(evidence?.sourceLabel || snapshot.sourceLabel) && <p className="action-evidence-source">Source: {evidence?.sourceLabel || snapshot.sourceLabel}</p>}</section>
         <section><h3>Reasoning</h3><p>{recommendation.reasoning}</p></section>
         <section><h3>Rule reference</h3><p>{recommendation.ruleReference || 'Referensi aturan belum disediakan oleh sumber rekomendasi.'}</p></section>
         <section className="action-suggestion"><h3>Suggested action</h3><p>{recommendation.suggestedAction}</p></section>
