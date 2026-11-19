@@ -94,14 +94,12 @@ export function DataQualityPage({ service = dataQualityService }: DataQualityPag
         {loadState === 'connected' && snapshot?.source === 'api' && <span className="quality-source-badge">Data backend</span>}
       </section>
 
-      {loadState === 'loading' && <div className="quality-loading" role="status" aria-label="Loading data quality profile"><span /><span /><span /><span /></div>}
-
       <section className="dataset-identity panel" aria-labelledby="dataset-name">
         <div className="dataset-identity-icon"><Database size={20} aria-hidden="true" /></div>
         <div className="dataset-identity-copy">
 
           <h2 id="dataset-name">UCI Online Retail II</h2>
-          <p>Identitas file: {snapshot?.dataset.fileIdentity ?? '�'}</p>
+          <p>Identitas file: {snapshot?.dataset.fileIdentity ?? '?'}</p>
         </div>
         <div className="dataset-read-status"><span>Status pembacaan</span><strong>{snapshot?.dataset.readStatus === 'available' ? 'Tersedia' : snapshot?.dataset.readStatus === 'failed' ? 'Gagal dibaca' : 'Belum terhubung'}</strong></div>
       </section>

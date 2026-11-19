@@ -25,9 +25,9 @@ select { color-scheme: inherit; }
 .state-block { display: flex; min-width: 0; align-items: flex-start; gap: var(--space-3); padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-surface); color: var(--text); }
 .state-block-icon { display: grid; width: 36px; height: 36px; flex: 0 0 36px; place-items: center; border-radius: var(--radius-sm); color: var(--text-muted); background: var(--bg-sunken); }
 .state-block-copy { min-width: 0; }
-.state-block-copy strong { display: block; font-size: var(--fs-label); line-height: var(--lh-label); }
+.state-block-copy h2 { margin: 0; font-size: var(--fs-label); line-height: var(--lh-label); font-weight: 650; }
 .state-block-copy p { margin: var(--space-1) 0 0; color: var(--text-muted); font-size: var(--fs-body); line-height: var(--lh-body); }
-.state-block-copy > :last-child:not(strong) { margin-bottom: 0; }
+.state-block-copy > :last-child:not(h2) { margin-bottom: 0; }
 .state-block-unavailable .state-block-icon { color: var(--warning-fg); background: var(--warning-soft); }
 .state-block-empty .state-block-icon { color: var(--text-muted); }
 .state-block-error { border-color: color-mix(in srgb, var(--danger) 34%, var(--border)); }
