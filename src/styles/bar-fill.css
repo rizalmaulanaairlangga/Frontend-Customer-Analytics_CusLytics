@@ -1,0 +1,9 @@
+.bar-fill-track { display: block; min-width: 0; height: 8px; overflow: hidden; border-radius: var(--radius-pill); background: var(--bg-sunken); }
+.bar-fill-value { display: block; height: 100%; border-radius: inherit; }
+.bar-rank-list:has(.bar-rank-item:hover) .bar-rank-item:not(:hover) .bar-fill-track, .bar-rank-list:has(.bar-rank-item:hover) .bar-rank-item:not(:hover) .bar-fill-value { opacity: .58; }
+.bar-rank-list:has(.bar-rank-item:hover) .bar-rank-item:not(:hover) .intelligence-rank { opacity: .6; }
+.bar-rank-list:has(.bar-rank-item:hover) .bar-rank-item:hover .intelligence-rank { border-color: var(--border); background: var(--surface-muted); transform: translateY(-1px); }
+.bar-rank-list:has(.bar-rank-item:hover) .bar-rank-item:hover .rank-track { transform: scaleY(1.35); }
+.rank-track { transition: transform var(--dur-fast) var(--ease-out); transform-origin: center; }
+.bar-fill-track, .bar-fill-value { transition: opacity var(--dur-fast) var(--ease-out); }
+@media (prefers-reduced-motion: reduce) { .bar-fill-track, .bar-fill-value, .rank-track, .intelligence-rank { transition: none !important; transform: none !important; } }

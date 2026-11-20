@@ -1,10 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { AlertCircle, ArrowLeft, CircleHelp, Info, RotateCw } from 'lucide-react'
+import { ArrowLeft, CircleHelp, Info, RotateCw } from 'lucide-react'
 import { ClusterDistributionChart, ClusterScatterChart, InertiaComparisonChart, type ScatterAxis } from '../components/model-evaluation/ModelEvaluationCharts'
 import { modelEvaluationService } from '../services/modelEvaluationService'
 import type { ModelEvaluationService, ModelEvaluationSnapshot } from '../types/modelEvaluation'
 import type { MLStudioExperiment } from '../types/mlStudio'
+import { getUserFacingError } from '../services/userFacingError'
+import { formatNumber } from '../utils/format'
+import { StateBlock } from '../components/StateBlock'
+import { Select } from '../components/ui/Select'
+import { PageSkeleton } from '../components/PageSkeleton'
 
 type LoadState = 'loading' | 'success' | 'unavailable' | 'error'
 const axisOptions: { value: ScatterAxis; label: string }[] = [{ value: 'recency', label: 'Recency' }, { value: 'frequency', label: 'Frequency' }, { value: 'monetary', label: 'Monetary' }]
@@ -14,7 +19,7 @@ function formatDate(value: string) {
   const parsed = new Date(value)
   return Number.isNaN(parsed.getTime()) ? value : new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(parsed)
 }
-function number(value?: number | null, digits = 2) { return value == null ? 'Data belum tersedia' : new Intl.NumberFormat('en-US', { maximumFractionDigits: digits }).format(value) }
+function number(value?: number | null, digits = 2) { return value == null ? '—' : formatNumber(value, { maximumFractionDigits: digits }) }
 function configError(error: unknown) { return error instanceof Error && /not configured|VITE_|resource path/i.test(error.message) }
 function profileObservations(snapshot: ModelEvaluationSnapshot): string[] {
   const clusters = snapshot.clusters.filter((cluster) => cluster.profile)
@@ -30,7 +35,7 @@ function profileObservations(snapshot: ModelEvaluationSnapshot): string[] {
     return [`${label}: ${statistic} is lower in Cluster ${lowest.clusterId} (${number(lowest.profile?.[key], 1)}) than Cluster ${highest.clusterId} (${number(highest.profile?.[key], 1)}).`]
   })
 }
-function ErrorPanel({ message, retry }: { message: string; retry: () => void }) { return <div className="evaluation-state evaluation-error" role="alert"><AlertCircle aria-hidden="true"/><div><strong>{message}</strong><p>Periksa koneksi dan konfigurasi API, lalu coba lagi.</p><button className="button button-secondary" onClick={retry}><RotateCw size={15}/>Retry</button></div></div> }
+function ErrorPanel({ message, retry, unavailable = false }: { message: string; retry: () => void; unavailable?: boolean }) { return <StateBlock kind={unavailable ? 'unavailable' : 'error'} title={unavailable ? 'Backend belum tersedia' : 'Model Evaluation gagal dimuat'} detail={message} action={<button className="button button-secondary" onClick={retry}><RotateCw size={15}/>Coba lagi</button>} /> }
 
 export function ModelEvaluationPage({ service = modelEvaluationService }: { service?: ModelEvaluationService }) {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -56,7 +61,7 @@ export function ModelEvaluationPage({ service = modelEvaluationService }: { serv
       setExperiments(successful); setExperimentState('success')
     }).catch((error: unknown) => {
       if (controller.signal.aborted) return
-      setExperimentError(error instanceof Error ? error.message : 'Experiment metadata could not be loaded.')
+      setExperimentError(getUserFacingError(error))
       setExperimentState(configError(error) ? 'unavailable' : 'error')
     })
     return () => controller.abort()
@@ -75,7 +80,7 @@ export function ModelEvaluationPage({ service = modelEvaluationService }: { serv
     service.getEvaluation(selectedId, controller.signal).then((value) => { setSnapshot(value); setEvaluationRequestId(selectedId); setEvaluationState('success') }).catch((error: unknown) => {
       if (controller.signal.aborted) return
       setEvaluationRequestId(selectedId)
-      setEvaluationError(error instanceof Error ? error.message : 'Evaluation results could not be loaded.')
+      setEvaluationError(getUserFacingError(error))
       setEvaluationState(configError(error) ? 'unavailable' : 'error')
     })
     return () => controller.abort()
@@ -109,29 +114,29 @@ export function ModelEvaluationPage({ service = modelEvaluationService }: { serv
   function retryAll() { setExperimentState('loading'); setExperimentError(''); setExperiments([]); setEvaluationState('loading'); setEvaluationRequestId(''); setEvaluationError(''); setSnapshot(null); setRetry((value) => value + 1) }
 
   return <main className="page-content model-evaluation-page">
-    <header className="page-heading evaluation-heading">
-      <div><span className="eyebrow">MODEL WORKSPACE</span><h1>Model Evaluation</h1><p>Evaluasi kualitas clustering, pahami profil pelanggan, dan bandingkan eksperimen K-Means.</p></div>
+    <header className="page-heading evaluation-heading reveal reveal-0">
+      <div><h1>Model Evaluation</h1><p>Evaluasi kualitas clustering, pahami profil pelanggan, dan bandingkan eksperimen K-Means.</p></div>
       <Link className="button button-secondary" to={selectedExists ? `/ml-studio?experimentId=${encodeURIComponent(selectedId)}` : '/ml-studio'}><ArrowLeft size={16}/>{selectedExists ? 'Open selected experiment in ML Studio' : 'Back to ML Studio'}</Link>
     </header>
 
-    {experimentState === 'loading' && <div className="evaluation-state" role="status">Loading experiment metadata…</div>}
-    {(experimentState === 'error' || experimentState === 'unavailable') && <ErrorPanel message={experimentError || 'Experiment metadata could not be loaded.'} retry={retryAll}/>}
+    {experimentState === 'loading' && <PageSkeleton variant="evaluation" />}
+    {(experimentState === 'error' || experimentState === 'unavailable') && <ErrorPanel message={experimentError || 'Experiment metadata could not be loaded.'} retry={retryAll} unavailable={experimentState === 'unavailable'} />}
     {experimentState === 'success' && experiments.length === 0 && <section className="panel evaluation-empty"><CircleHelp aria-hidden="true"/><div><h2>No successful experiment is available</h2><p>Hasil evaluasi akan tersedia setelah eksperimen K-Means berhasil dijalankan dan backend terhubung.</p><Link to="/ml-studio">Open ML Studio</Link></div></section>}
     {experimentState === 'success' && experiments.length > 0 && <>
-      <section className="panel evaluation-toolbar">
+      <section className="panel evaluation-toolbar reveal reveal-1">
         <label htmlFor="evaluation-experiment">Experiment</label>
-        <select id="evaluation-experiment" value={selectedExists ? selectedId : ''} onChange={(event) => chooseExperiment(event.target.value)}>
+        <Select id="evaluation-experiment" value={selectedExists ? selectedId : ''} onChange={(value) => chooseExperiment(value)}>
           <option value="" disabled>Select an experiment</option>
           {experiments.map((experiment) => <option key={experiment.id} value={experiment.id}>{experiment.id} · {formatDate(experiment.timestamp)} · K={experiment.k} · Succeeded</option>)}
-        </select>
+        </Select>
         <span className={`evaluation-source evaluation-source-${displaySnapshot ? 'success' : visibleEvaluationState}`} aria-live="polite"><span className="status-dot"/>{displaySnapshot ? 'Backend results loaded' : visibleEvaluationState === 'loading' ? 'Loading evaluation results' : visibleEvaluationState === 'unavailable' ? 'Backend unavailable' : 'Evaluation results unavailable'}</span>
       </section>
       {!selectedExists && <section className="panel evaluation-empty" role="status"><CircleHelp aria-hidden="true"/><div><h2>Experiment is unavailable</h2><p>The experiment ID in this link is not present in the successful experiment history.</p><button className="text-button" onClick={() => chooseExperiment(experiments[0].id)}>Show latest successful experiment</button></div></section>}
-      {selectedExists && (visibleEvaluationState === 'loading' ? <div className="evaluation-state" role="status">Loading results for {selectedId}…</div> : null)}
-      {selectedExists && (visibleEvaluationState === 'error' || visibleEvaluationState === 'unavailable') && <ErrorPanel message={evaluationError || 'Evaluation resource is not configured.'} retry={retryAll}/>}
+      {selectedExists && (visibleEvaluationState === 'loading' ? <PageSkeleton variant="evaluation" /> : null)}
+      {selectedExists && (visibleEvaluationState === 'error' || visibleEvaluationState === 'unavailable') && <ErrorPanel message={evaluationError || 'Sumber evaluasi tidak tersedia.'} retry={retryAll} unavailable={visibleEvaluationState === 'unavailable'} />}
       {selectedExists && displaySnapshot && <>
         <section className="panel evaluation-experiment-card">
-          <div className="evaluation-section-title"><div><span className="eyebrow">SELECTED RUN</span><h2>Experiment summary</h2></div><span className="evaluation-run-status">Succeeded</span></div>
+          <div className="evaluation-section-title"><div><h2>Experiment summary</h2></div><span className="evaluation-run-status">Succeeded</span></div>
           <dl className="evaluation-metadata">
             <div><dt>Experiment ID</dt><dd>{displaySnapshot.experiment.id}</dd></div><div><dt>Timestamp</dt><dd>{formatDate(displaySnapshot.experiment.timestamp)}</dd></div><div><dt>K</dt><dd>{displaySnapshot.experiment.k}</dd></div><div><dt>Random seed</dt><dd>{number(displaySnapshot.experiment.randomSeed, 0)}</dd></div><div><dt>Preprocessing version</dt><dd>{displaySnapshot.experiment.preprocessingVersion || 'Not reported'}</dd></div><div><dt>Customers evaluated</dt><dd>{number(displaySnapshot.experiment.customersEvaluated, 0)}</dd></div>
           </dl>
@@ -146,7 +151,7 @@ export function ModelEvaluationPage({ service = modelEvaluationService }: { serv
           <article className="panel evaluation-panel"><div className="evaluation-section-title"><div><h2>Cluster distribution</h2><p>Customer counts from this experiment.</p></div></div><ClusterDistributionChart snapshot={displaySnapshot}/><p className="evaluation-note">{displaySnapshot.clusters.length} reported clusters · {displaySnapshot.clusters.length ? `sizes range from ${Math.min(...displaySnapshot.clusters.map((cluster) => cluster.customerCount))} to ${Math.max(...displaySnapshot.clusters.map((cluster) => cluster.customerCount))} customers` : 'sizes unavailable'}. Percentages are shown as reported or derived from supplied counts and evaluated-customer total.</p></article>
           <article className="panel evaluation-panel"><div className="evaluation-section-title"><div><h2>Cluster profiles</h2><p>Backend-reported RFM summary by cluster.</p></div></div><div className="evaluation-table-wrap" role="region" aria-label="Cluster RFM profile table; scroll horizontally if needed" tabIndex={0}><table className="evaluation-table"><thead><tr><th>Cluster</th><th>Customers</th><th>Population</th><th>Statistic</th><th>Recency</th><th>Frequency</th><th>Monetary</th></tr></thead><tbody>{displaySnapshot.clusters.map((cluster) => <tr key={String(cluster.clusterId)}><th scope="row">{String(cluster.clusterId)}</th><td>{number(cluster.customerCount, 0)}</td><td>{cluster.percentage == null ? number(displaySnapshot.experiment.customersEvaluated ? cluster.customerCount / displaySnapshot.experiment.customersEvaluated * 100 : null, 1) + (displaySnapshot.experiment.customersEvaluated ? '%' : '') : `${number(cluster.percentage, 1)}%`}</td><td><span className="evaluation-statistic">{cluster.profile?.statistic || 'Not reported'}</span></td><td>{number(cluster.profile?.recency, 1)}</td><td>{number(cluster.profile?.frequency, 1)}</td><td>{number(cluster.profile?.monetary, 1)}{cluster.profile?.monetary != null && displaySnapshot.monetaryUnit ? ` ${displaySnapshot.monetaryUnit}` : ''}</td></tr>)}</tbody></table></div><p className="evaluation-note">Monetary is transaction value in the reported feature space, not profit. Values are {displaySnapshot.clusters.find((cluster) => cluster.profile)?.profile?.statistic || 'the backend-reported statistic'}.</p></article>
         </section>
-        <section className="panel evaluation-panel"><div className="evaluation-section-title evaluation-scatter-title"><div><h2>Customer feature projection</h2><p>Each point is supplied by the backend; the browser does not create or sample customers.</p></div><div className="evaluation-axis-controls"><label>X axis<select aria-label="Scatter X axis" value={xAxis} onChange={(event) => changeXAxis(event.target.value as ScatterAxis)}>{axisOptions.map((axis) => <option value={axis.value} key={axis.value}>{axis.label}</option>)}</select></label><label>Y axis<select aria-label="Scatter Y axis" value={yAxis} onChange={(event) => changeYAxis(event.target.value as ScatterAxis)}>{axisOptions.map((axis) => <option value={axis.value} key={axis.value}>{axis.label}</option>)}</select></label></div></div><ClusterScatterChart snapshot={displaySnapshot} xAxis={xAxis} yAxis={yAxis}/></section>
+        <section className="panel evaluation-panel"><div className="evaluation-section-title evaluation-scatter-title"><div><h2>Customer feature projection</h2><p>Each point is supplied by the backend; the browser does not create or sample customers.</p></div><div className="evaluation-axis-controls"><label>X axis<Select aria-label="Scatter X axis" value={xAxis} onChange={(value) => changeXAxis(value as ScatterAxis)}>{axisOptions.map((axis) => <option value={axis.value} key={axis.value}>{axis.label}</option>)}</Select></label><label>Y axis<Select aria-label="Scatter Y axis" value={yAxis} onChange={(value) => changeYAxis(value as ScatterAxis)}>{axisOptions.map((axis) => <option value={axis.value} key={axis.value}>{axis.label}</option>)}</Select></label></div></div><ClusterScatterChart snapshot={displaySnapshot} xAxis={xAxis} yAxis={yAxis}/></section>
         <section className="panel evaluation-panel evaluation-interpretation"><div className="evaluation-section-title"><div><h2>Interpretation &amp; Limitations</h2><p>Interpretation is limited to the supplied metrics and feature summaries.</p></div></div><div className="evaluation-observations">{profileObservations(displaySnapshot).length ? <><h3>Observed profile differences</h3><ul>{profileObservations(displaySnapshot).map((observation) => <li key={observation}>{observation}</li>)}</ul></> : <p>Comparable mean or median RFM values were not supplied across multiple clusters; read the reported profiles directly without inferring a ranking.</p>}</div><ul><li>Inertia alone cannot determine model quality or the appropriate K; it generally decreases as K grows.</li><li>Silhouette is shown only when its calculation is available and marked valid by the backend.</li><li>Clusters group observations using the supplied features and preprocessing; they are not definitive customer categories.</li><li>RFM profiles do not explain the causes of customer behavior. Monetary represents transaction value, not profit.</li><li>Clustering results do not prove that a marketing strategy will be effective.</li></ul></section>
         <section className="panel evaluation-panel evaluation-comparison"><div className="evaluation-section-title"><div><h2>Compare experiments</h2><p>Select completed runs to inspect their supplied configurations and results. This does not start or retrain an experiment.</p></div></div><div className="evaluation-compare-options">{experiments.map((experiment) => <label key={experiment.id}><input type="checkbox" aria-label={`Compare ${experiment.id}`} checked={compareIds.includes(experiment.id)} onChange={() => toggleCompare(experiment.id)}/><span>{experiment.id} · K={experiment.k}</span></label>)}</div>{compareError && <p className="evaluation-warning" role="status">{compareError}</p>}{inconsistency && <p className="evaluation-warning" role="status">Preprocessing versions or profile statistics differ. Compare metrics and profiles with care.</p>}{comparisons.length >= 2 && <><p className="evaluation-warning">Cluster IDs are arbitrary between runs; compare distributions and RFM profiles, not matching IDs. Inertia generally decreases as K increases and cannot determine the best K by itself.</p>{comparisonIncomplete && <p className="evaluation-warning" role="status">Some metrics or profile fields are missing or invalid. The comparison shows those values as unavailable and should be treated as incomplete.</p>}<div className="evaluation-table-wrap" role="region" aria-label="Experiment comparison table; scroll horizontally if needed" tabIndex={0}><table className="evaluation-table"><thead><tr><th>Experiment</th><th>Timestamp</th><th>K</th><th>Seed</th><th>Preprocessing</th><th>Inertia</th><th>Silhouette</th><th>Customers</th><th>Cluster sizes &amp; RFM profiles</th></tr></thead><tbody>{comparisons.map((item) => <tr key={item.experiment.id}><th scope="row">{item.experiment.id}</th><td>{formatDate(item.experiment.timestamp)}</td><td>{item.experiment.k}</td><td>{number(item.experiment.randomSeed, 0)}</td><td>{item.experiment.preprocessingVersion || 'Not reported'}</td><td>{number(item.metrics.inertia)}</td><td>{item.metrics.silhouette?.status === 'valid' ? number(item.metrics.silhouette.value) : item.metrics.silhouette?.status === 'invalid' ? 'Invalid' : 'Unavailable'}</td><td>{number(item.experiment.customersEvaluated, 0)}</td><td>{item.clusters.map((cluster) => `${cluster.clusterId}: ${cluster.customerCount} (${cluster.profile?.statistic || 'RFM unavailable'}${cluster.profile ? ` R ${number(cluster.profile.recency, 1)} · F ${number(cluster.profile.frequency, 1)} · M ${number(cluster.profile.monetary, 1)}` : ''})`).join(' · ') || 'Unavailable'}</td></tr>)}</tbody></table></div><div className="evaluation-compare-chart-title"><h3>Observed inertia by K</h3><p>Points are shown only for experiments with reported inertia.</p></div><InertiaComparisonChart evaluations={comparisons}/></>}{compareIds.length > 0 && comparisons.length < 2 && !compareError && <p className="evaluation-note">Select at least two experiments to compare their supplied results.</p>}</section>
       </>}

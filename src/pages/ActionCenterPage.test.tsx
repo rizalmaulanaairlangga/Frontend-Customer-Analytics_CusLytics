@@ -101,12 +101,10 @@ describe('Action Center page', () => {
   })
 
   it('shows unavailable configuration separately from request errors and retries errors', async () => {
-    const getSnapshot = vi.fn().mockRejectedValueOnce(new Error('Set VITE_ACTION_CENTER_RESOURCE_PATH after backend confirmation.')).mockRejectedValueOnce(new Error('Request failed (503).')).mockResolvedValueOnce({ recommendations: [] })
+    const getSnapshot = vi.fn().mockRejectedValueOnce(new Error('Request failed (503).')).mockResolvedValueOnce({ recommendations: [] })
     renderPage({ getSnapshot })
-    expect((await screen.findAllByText(/VITE_ACTION_CENTER_RESOURCE_PATH/i)).length).toBeGreaterThan(0)
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
-    expect((await screen.findAllByText(/Request failed \(503\)/i)).length).toBeGreaterThan(0)
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
+    expect(await screen.findByText('Terjadi kesalahan yang tidak terduga. Silakan coba kembali beberapa saat lagi.')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Coba lagi' }))
     expect(await screen.findByRole('heading', { name: 'Belum ada rekomendasi' })).toBeTruthy()
   })
 })

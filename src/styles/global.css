@@ -1,12 +1,50 @@
 * { box-sizing: border-box; }
+body { font-family: var(--font-body); }
+h1, h2, h3, .kpi-value, .customer-kpi > strong { font-family: var(--font-display); font-weight: 600; }
 
 html { min-width: 0; min-height: 100%; background: var(--canvas); }
-body { min-width: 0; min-height: 100vh; margin: 0; color: var(--text); background: var(--canvas); transition: color 160ms ease, background-color 160ms ease; }
-button, input, select { font: inherit; }
+body { min-width: 0; min-height: 100vh; margin: 0; color: var(--text); background: var(--canvas); }
+button, input { font: inherit; }
 button { color: inherit; }
 a { color: inherit; }
 h1, h2, h3, p { margin-top: 0; }
 h1, h2, h3 { color: var(--navy-950); }
+
+@keyframes reveal-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.reveal { animation: reveal-in var(--dur-slow) var(--ease-out) both; animation-delay: min(calc(var(--i, 0) * 60ms), 480ms); }
+.reveal-0 { --i: 0; }.reveal-1 { --i: 1; }.reveal-2 { --i: 2; }.reveal-3 { --i: 3; }.reveal-4 { --i: 4; }.reveal-5 { --i: 5; }.reveal-6 { --i: 6; }.reveal-7 { --i: 7; }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.kpi-grid, .sales-kpi-grid, .customer-kpi-grid, .quality-summary-grid, .action-summary-grid) > * { animation: reveal-in var(--dur-slow) var(--ease-out) both; animation-delay: min(calc(var(--i, 0) * 60ms), 480ms); }
+  :is(.kpi-grid, .sales-kpi-grid, .customer-kpi-grid, .quality-summary-grid, .action-summary-grid) > :nth-child(1) { --i: 2; }
+  :is(.kpi-grid, .sales-kpi-grid, .customer-kpi-grid, .quality-summary-grid, .action-summary-grid) > :nth-child(2) { --i: 3; }
+  :is(.kpi-grid, .sales-kpi-grid, .customer-kpi-grid, .quality-summary-grid, .action-summary-grid) > :nth-child(3) { --i: 4; }
+  :is(.kpi-grid, .sales-kpi-grid, .customer-kpi-grid, .quality-summary-grid, .action-summary-grid) > :nth-child(4) { --i: 5; }
+  :is(.secondary-grid, .customer-chart-grid, .quality-insight-grid, .action-recommendation-grid) > * { animation: reveal-in var(--dur-slow) var(--ease-out) both; animation-delay: min(calc(var(--i, 0) * 60ms), 480ms); }
+  :is(.secondary-grid, .customer-chart-grid, .quality-insight-grid, .action-recommendation-grid) > :nth-child(1) { --i: 6; }
+  :is(.secondary-grid, .customer-chart-grid, .quality-insight-grid, .action-recommendation-grid) > :nth-child(2) { --i: 7; }
+}
+@media (prefers-reduced-motion: reduce) { .reveal, :is(.kpi-grid, .sales-kpi-grid, .customer-kpi-grid, .quality-summary-grid, .action-summary-grid) > *, :is(.secondary-grid, .customer-chart-grid, .quality-insight-grid, .action-recommendation-grid) > * { animation: none; } }
+
+.chart-reveal .recharts-area, .chart-reveal .recharts-line { clip-path: inset(-14px 100% -14px -14px); }
+.chart-reveal[data-ready] .recharts-area, .chart-reveal[data-ready] .recharts-line { animation: chart-reveal 1100ms cubic-bezier(.4,0,.2,1) forwards; }
+@keyframes chart-reveal { to { clip-path: inset(-14px -14px -14px -14px); } }
+@media (prefers-reduced-motion: reduce) { .chart-reveal .recharts-area, .chart-reveal .recharts-line { clip-path: none; animation: none; } }
+
+@property --reveal-r { syntax: '<length>'; inherits: false; initial-value: 0px; }
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) {
+  z-index: 2;
+  --reveal-r: 0px;
+  -webkit-mask-image: radial-gradient(circle at 0 0, var(--text) calc(var(--reveal-r) - 140px), transparent var(--reveal-r));
+  mask-image: radial-gradient(circle at 0 0, var(--text) calc(var(--reveal-r) - 140px), transparent var(--reveal-r));
+  mask-repeat: no-repeat;
+  animation: theme-flow 1100ms cubic-bezier(.4, 0, .2, 1) forwards;
+}
+@keyframes theme-flow { to { --reveal-r: calc(150vmax + 160px); } }
+
+.app-error-fallback { display: grid; min-height: 100vh; align-content: center; justify-items: start; gap: 0.75rem; max-width: 36rem; margin-inline: auto; padding: 2rem; }
+.app-error-fallback h1, .app-error-fallback p { margin: 0; }
 
 :focus-visible { outline: 3px solid var(--blue-600); outline-offset: 2px; }
 .app-sidebar :focus-visible { outline-color: var(--sidebar-focus); }

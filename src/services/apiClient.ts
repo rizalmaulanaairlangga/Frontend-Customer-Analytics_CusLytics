@@ -1,14 +1,24 @@
 export class ApiError extends Error {
   readonly status?: number
+  readonly code?: string
 
-  constructor(message: string, status?: number) {
+  constructor(message: string, status?: number, code?: string) {
     super(message)
     this.name = 'ApiError'
     this.status = status
+    this.code = code
   }
 }
 
 export type Query = Record<string, string | undefined>
+
+function createUrl(path: string, baseUrl: string): URL {
+  try {
+    return new URL(path.replace(/^\/+/, ''), `${baseUrl.replace(/\/+$/, '')}/`)
+  } catch {
+    throw new ApiError('Service unavailable', undefined, 'API_UNAVAILABLE')
+  }
+}
 
 export async function getJson<T>(
   path: string,
@@ -16,9 +26,9 @@ export async function getJson<T>(
   query: Query = {},
   options: { signal?: AbortSignal; timeoutMs?: number } = {},
 ): Promise<T> {
-  if (!baseUrl.trim()) throw new ApiError('Set VITE_API_BASE_URL before using API mode.')
+  if (!baseUrl.trim()) throw new ApiError('Service unavailable', undefined, 'API_UNAVAILABLE')
 
-  const url = new URL(path.replace(/^\/+/, ''), `${baseUrl.replace(/\/+$/, '')}/`)
+  const url = createUrl(path, baseUrl)
   for (const [key, value] of Object.entries(query)) {
     if (value !== undefined && value !== '') url.searchParams.set(key, value)
   }
@@ -38,9 +48,9 @@ export async function getJson<T>(
     }
   } catch (error) {
     if (error instanceof ApiError) throw error
-    if (controller.signal.aborted && !options.signal?.aborted) throw new ApiError('The request timed out. Try again.')
+    if (controller.signal.aborted && !options.signal?.aborted) throw new ApiError('Request timed out', undefined, 'TIMEOUT')
     if (options.signal?.aborted) throw error
-    throw new ApiError('Could not reach the analytics service. Check the API connection and try again.')
+    throw new ApiError('Network request failed', undefined, 'NETWORK_ERROR')
   } finally {
     clearTimeout(timeout)
     options.signal?.removeEventListener('abort', abortFromCaller)
@@ -53,9 +63,9 @@ export async function postJson<T>(
   body: unknown,
   options: { signal?: AbortSignal; timeoutMs?: number } = {},
 ): Promise<T> {
-  if (!baseUrl.trim()) throw new ApiError('Set VITE_API_BASE_URL before using API mode.')
+  if (!baseUrl.trim()) throw new ApiError('Service unavailable', undefined, 'API_UNAVAILABLE')
 
-  const url = new URL(path.replace(/^\/+/, ''), `${baseUrl.replace(/\/+$/, '')}/`)
+  const url = createUrl(path, baseUrl)
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(new DOMException('The request timed out.', 'TimeoutError')), options.timeoutMs ?? 12000)
   const abortFromCaller = () => controller.abort(options.signal?.reason)
@@ -76,9 +86,9 @@ export async function postJson<T>(
     }
   } catch (error) {
     if (error instanceof ApiError) throw error
-    if (controller.signal.aborted && !options.signal?.aborted) throw new ApiError('The request timed out. Try again.')
+    if (controller.signal.aborted && !options.signal?.aborted) throw new ApiError('Request timed out', undefined, 'TIMEOUT')
     if (options.signal?.aborted) throw error
-    throw new ApiError('Could not reach the analytics service. Check the API connection and try again.')
+    throw new ApiError('Network request failed', undefined, 'NETWORK_ERROR')
   } finally {
     clearTimeout(timeout)
     options.signal?.removeEventListener('abort', abortFromCaller)

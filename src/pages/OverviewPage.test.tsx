@@ -27,16 +27,15 @@ describe('OverviewPage', () => {
     const service = { getDashboard: vi.fn().mockResolvedValue(snapshot) }
     renderPage(service)
 
-    expect(await screen.findByText('Demo Data')).toBeTruthy()
+    expect(await screen.findByText('Demo fixture:')).toBeTruthy()
     expect(screen.getByRole('article', { name: 'Sales Value: 100' }).textContent).toContain('Sales Value')
     expect(screen.getByRole('article', { name: 'Unique Invoices: 10' }).textContent).toContain('10')
-    expect(screen.getByText(/illustrative demo fixture/i)).toBeTruthy()
   })
 
   it('applies the same date and country filter to the dashboard request', async () => {
     const service = { getDashboard: vi.fn().mockResolvedValue(snapshot) }
     renderPage(service)
-    await screen.findByText('Demo Data')
+    await screen.findByText('Demo fixture:')
     fireEvent.change(screen.getByLabelText('Start date'), { target: { value: '2025-01-01' } })
     fireEvent.change(screen.getByLabelText('End date'), { target: { value: '2025-01-31' } })
     fireEvent.change(screen.getByLabelText('Country'), { target: { value: 'France' } })
@@ -51,9 +50,9 @@ describe('OverviewPage', () => {
     const service = { getDashboard: vi.fn().mockRejectedValue(new Error('Service unavailable')) }
     renderPage(service)
 
-    expect(await screen.findByText('Service unavailable')).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Retry' })).toBeTruthy()
-    expect(screen.queryByText('Demo Data')).toBeNull()
+    expect(await screen.findByText('Layanan belum tersedia saat ini.')).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Coba lagi' })).toBeTruthy()
+    expect(screen.queryByText('Demo fixture:')).toBeNull()
   })
 
   it('shows loading and empty states from the selected service', async () => {
@@ -82,10 +81,10 @@ describe('OverviewPage', () => {
       .mockRejectedValueOnce(new Error('Temporary connection error'))
       .mockResolvedValue(snapshot) }
     renderPage(service)
-    await screen.findByText('Temporary connection error')
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
+    await screen.findByText('Terjadi kesalahan yang tidak terduga. Silakan coba kembali beberapa saat lagi.')
+    fireEvent.click(screen.getByRole('button', { name: 'Coba lagi' }))
 
-    expect(await screen.findByText('Demo Data')).toBeTruthy()
+    expect(await screen.findByText('Demo fixture:')).toBeTruthy()
     expect(service.getDashboard).toHaveBeenCalledTimes(2)
   })
 })

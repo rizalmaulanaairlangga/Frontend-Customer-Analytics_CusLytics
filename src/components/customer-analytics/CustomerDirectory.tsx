@@ -2,15 +2,17 @@ import { useState } from 'react'
 import { Search, RotateCcw } from 'lucide-react'
 import type { CustomerRfmRecord, RfmMetric } from '../../types/customerAnalytics'
 import { CustomerDetailDrawer } from './CustomerDetailDrawer'
+import { formatCurrency, formatNumber } from '../../utils/format'
+import { Select } from '../ui/Select'
 
 type SortKey = 'customerId' | RfmMetric
 
 function number(value: number | null, currencyCode?: string, currency = false): string {
-  if (value === null) return '—'
+  if (value === null) return 'â€”'
   try {
-    return new Intl.NumberFormat('id-ID', currency && currencyCode ? { style: 'currency', currency: currencyCode, maximumFractionDigits: 2 } : { maximumFractionDigits: 2 }).format(value)
+    return currency && currencyCode ? formatCurrency(value, currencyCode) : formatNumber(value, { maximumFractionDigits: 2 })
   } catch {
-    return new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 }).format(value)
+    return formatNumber(value, { maximumFractionDigits: 2 })
   }
 }
 
@@ -35,14 +37,14 @@ export function CustomerDirectory({ customers, currencyCode, observationDate, an
   return (
     <section className="panel customer-directory" aria-labelledby="customer-directory-title">
       <div className="panel-heading">
-        <div><p className="eyebrow">Customer records</p><h2 id="customer-directory-title">Customer Directory</h2></div>
+        <div><h2 id="customer-directory-title">Customer Directory</h2></div>
         <button className="button button-secondary" type="button" onClick={reset}><RotateCcw size={14} aria-hidden="true" /> Reset filters</button>
       </div>
       <p className="panel-subtitle">Satu baris mewakili satu pelanggan yang disediakan oleh sumber data.</p>
       <div className="customer-table-tools">
         <label className="customer-search"><Search size={15} aria-hidden="true" /><span className="sr-only">Search customers</span><input type="search" role="searchbox" aria-label="Search customers" placeholder="Cari Customer ID" value={query} onChange={(event) => { setQuery(event.target.value); setPage(1) }} /></label>
-        <label className="compact-select customer-table-select"><span>Urutkan</span><select aria-label="Sort customers by" value={sort} onChange={(event) => { setSort(event.target.value as SortKey); setPage(1) }}><option value="customerId">Customer ID</option><option value="recency">Recency</option><option value="frequency">Frequency</option><option value="monetary">Monetary</option></select></label>
-        <label className="compact-select customer-table-select customer-page-size"><span>Baris</span><select aria-label="Rows per page" value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1) }}><option value={5}>5</option><option value={10}>10</option><option value={20}>20</option></select></label>
+        <label className="compact-select customer-table-select"><span>Urutkan</span><Select aria-label="Sort customers by" value={sort} onChange={(value) => { setSort(value as SortKey); setPage(1) }}><option value="customerId">Customer ID</option><option value="recency">Recency</option><option value="frequency">Frequency</option><option value="monetary">Monetary</option></Select></label>
+        <label className="compact-select customer-table-select customer-page-size"><span>Baris</span><Select aria-label="Rows per page" value={String(pageSize)} onChange={(value) => { setPageSize(Number(value)); setPage(1) }}><option value={5}>5</option><option value={10}>10</option><option value={20}>20</option></Select></label>
       </div>
       <div className="customer-table-scroll">
         {!currencyCode && <p className="customer-currency-note">Satuan mata uang Monetary belum dilaporkan oleh sumber data.</p>}
@@ -58,7 +60,7 @@ export function CustomerDirectory({ customers, currencyCode, observationDate, an
           </tbody>
         </table>
       </div>
-      <div className="customer-table-footer"><span aria-live="polite">Showing {start} to {end} of {filtered.length} customers</span><div className="pagination-controls"><button className="button button-secondary" type="button" disabled={currentPage <= 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>Previous page</button><span>Page {currentPage} of {pageCount}</span><button className="button button-secondary" type="button" disabled={currentPage >= pageCount} onClick={() => setPage((value) => Math.min(pageCount, value + 1))}>Next page</button></div></div>
+      {filtered.length > 0 && <div className="customer-table-footer"><span aria-live="polite">Showing {start} to {end} of {filtered.length} customers</span><div className="pagination-controls"><button className="button button-secondary" type="button" disabled={currentPage <= 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>Previous page</button><span>Page {currentPage} of {pageCount}</span><button className="button button-secondary" type="button" disabled={currentPage >= pageCount} onClick={() => setPage((value) => Math.min(pageCount, value + 1))}>Next page</button></div></div>}
       {selected && <CustomerDetailDrawer customer={selected} currencyCode={currencyCode} observationDate={observationDate} analysisPeriod={analysisPeriod} onClose={() => setSelected(null)} />}
     </section>
   )

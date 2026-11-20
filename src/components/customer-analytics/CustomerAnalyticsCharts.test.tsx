@@ -15,7 +15,7 @@ describe('CustomerAnalyticsCharts', () => {
     render(<CustomerAnalyticsCharts snapshot={snapshot} />)
     fireEvent.change(screen.getByLabelText('Distribution metric'), { target: { value: 'frequency' } })
     expect((screen.getByLabelText('Distribution metric') as HTMLSelectElement).value).toBe('frequency')
-    expect(screen.getByText(/Distribution data for Frequency is not available/i)).toBeTruthy()
+    expect(screen.getByText(/Frequency distribution unavailable/i)).toBeTruthy()
     fireEvent.change(screen.getByLabelText('Scatter X axis'), { target: { value: 'monetary' } })
     expect((screen.getByLabelText('Scatter X axis') as HTMLSelectElement).value).toBe('monetary')
     expect((screen.getByLabelText('Scatter Y axis') as HTMLSelectElement).value).toBe('recency')

@@ -1,6 +1,11 @@
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis } from 'recharts'
 import type { EvaluationCluster, EvaluationPoint, ModelEvaluationSnapshot } from '../../types/modelEvaluation'
-import { clusterColor } from './clusterPalette'
+import { formatNumber } from '../../utils/format'
+import { getItemColor } from '../../constants/metricColors'
+
+function chartMotionAllowed() {
+  return typeof window.matchMedia !== 'function' || !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
 
 function clusterIndex(clusters: EvaluationCluster[], id: string | number): number {
   return clusters.findIndex((cluster) => cluster.clusterId === id)
@@ -23,15 +28,15 @@ export function ClusterDistributionChart({ snapshot }: { snapshot: ModelEvaluati
       {data.length === 0 ? <p className="evaluation-chart-empty">Cluster distribution is unavailable in this evaluation.</p> : <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 16, right: 8, left: 0, bottom: 12 }}>
           <CartesianGrid stroke="var(--chart-grid)" vertical={false} />
-          <XAxis dataKey="label" tick={{ fill: 'var(--text-muted)', fontSize: 10 }} tickLine={false} axisLine={false} />
-          <YAxis allowDecimals={false} tick={{ fill: 'var(--text-muted)', fontSize: 10 }} tickLine={false} axisLine={false} width={38} />
+          <XAxis dataKey="label" tick={{ fill: 'var(--text-muted)', fontSize: 12 }} tickLine={false} axisLine={false} />
+          <YAxis allowDecimals={false} tick={{ fill: 'var(--text-muted)', fontSize: 12 }} tickLine={false} axisLine={false} width={48} />
           <Tooltip cursor={{ fill: 'var(--surface-muted)' }} content={({ active, payload }) => {
             if (!active || !payload?.length) return null
             const cluster = payload[0].payload as typeof data[number]
-            return <div className="chart-tooltip"><strong>{cluster.label}</strong><span>{new Intl.NumberFormat('id-ID').format(cluster.customerCount)} customers</span><span>{cluster.displayPercentage == null ? 'Percentage unavailable' : `${cluster.displayPercentage.toFixed(1)}% of evaluated customers`}</span></div>
+            return <div className="chart-tooltip"><strong>{cluster.label}</strong><span>{formatNumber(cluster.customerCount)} customers</span><span>{cluster.displayPercentage == null ? 'Percentage unavailable' : `${formatNumber(cluster.displayPercentage, { maximumFractionDigits: 1 })}% of evaluated customers`}</span></div>
           }} />
-          <Bar dataKey="customerCount" name="Customers" radius={[5, 5, 0, 0]} isAnimationActive={false}>
-            {data.map((cluster, index) => <Cell key={String(cluster.clusterId)} fill={clusterColor(index)} />)}
+          <Bar dataKey="customerCount" name="Customers" radius={[5, 5, 0, 0]} isAnimationActive={chartMotionAllowed()} animationDuration={700} animationEasing="ease-out">
+            {data.map((cluster) => <Cell key={String(cluster.clusterId)} fill={getItemColor(String(cluster.clusterId), data.map((item) => String(item.clusterId)))} />)}
           </Bar>
         </BarChart>
       </ResponsiveContainer>}
@@ -62,18 +67,18 @@ export function ClusterScatterChart({ snapshot, xAxis, yAxis }: { snapshot: Mode
       <div className="evaluation-scatter-plot"><ResponsiveContainer width="100%" height="100%">
         <ScatterChart margin={{ top: 18, right: 14, bottom: 18, left: 18 }}>
           <CartesianGrid stroke="var(--chart-grid)" />
-          <XAxis type="number" dataKey={xAxis} name={axes[xAxis].label} tick={{ fill: 'var(--text-muted)', fontSize: 10 }} tickLine={false} axisLine={{ stroke: 'var(--border-strong)' }} label={{ value: xLabel, position: 'insideBottom', offset: -10, fill: 'var(--text-secondary)', fontSize: 10 }} />
-          <YAxis type="number" dataKey={yAxis} name={axes[yAxis].label} tick={{ fill: 'var(--text-muted)', fontSize: 10 }} tickLine={false} axisLine={{ stroke: 'var(--border-strong)' }} width={52} label={{ value: yLabel, angle: -90, position: 'insideLeft', fill: 'var(--text-secondary)', fontSize: 10 }} />
+          <XAxis type="number" dataKey={xAxis} name={axes[xAxis].label} tick={{ fill: 'var(--text-muted)', fontSize: 12 }} tickLine={false} axisLine={false} label={{ value: xLabel, position: 'insideBottom', offset: -10, fill: 'var(--text-secondary)', fontSize: 12 }} />
+          <YAxis type="number" dataKey={yAxis} name={axes[yAxis].label} tick={{ fill: 'var(--text-muted)', fontSize: 12 }} tickLine={false} axisLine={false} width={58} label={{ value: yLabel, angle: -90, position: 'insideLeft', fill: 'var(--text-secondary)', fontSize: 12 }} />
           <Tooltip cursor={{ stroke: 'var(--chart-cursor)', strokeDasharray: '4 4' }} content={({ active, payload }) => {
             if (!active || !payload?.length) return null
             const point = payload[0].payload as EvaluationPoint
             const cluster = snapshot.clusters[clusterIndex(snapshot.clusters, point.clusterId)]
             return <div className="chart-tooltip"><strong>{point.customerId}</strong><span>{axes[xAxis].label}: {point[xAxis]}</span><span>{axes[yAxis].label}: {point[yAxis]}</span><span>{clusterLabel(point.clusterId)}</span>{cluster && <span>{cluster.customerCount} customers in this cluster</span>}</div>
           }} />
-          {snapshot.clusters.map((cluster, index) => <Scatter key={String(cluster.clusterId)} name={clusterLabel(cluster.clusterId)} data={points.filter((point) => point.clusterId === cluster.clusterId)} fill={clusterColor(index)} isAnimationActive={false} />)}
+          {snapshot.clusters.map((cluster) => <Scatter key={String(cluster.clusterId)} name={clusterLabel(cluster.clusterId)} data={points.filter((point) => point.clusterId === cluster.clusterId)} fill={getItemColor(String(cluster.clusterId), snapshot.clusters.map((item) => String(item.clusterId)))} isAnimationActive={chartMotionAllowed()} animationDuration={700} animationEasing="ease-out" />)}
         </ScatterChart>
       </ResponsiveContainer></div>
-      <ul className="evaluation-cluster-legend" aria-label="Cluster color legend">{snapshot.clusters.map((cluster, index) => <li key={String(cluster.clusterId)}><span aria-hidden="true" style={{ backgroundColor: clusterColor(index) }}/>{clusterLabel(cluster.clusterId)}</li>)}</ul>
+      {snapshot.clusters.length > 1 && <ul className="evaluation-cluster-legend" aria-label="Cluster color legend">{snapshot.clusters.map((cluster) => <li key={String(cluster.clusterId)}><span aria-hidden="true" style={{ backgroundColor: getItemColor(String(cluster.clusterId), snapshot.clusters.map((item) => String(item.clusterId))) }}/>{clusterLabel(cluster.clusterId)}</li>)}</ul>}
       </>}
     </div>
   )
@@ -87,14 +92,14 @@ export function InertiaComparisonChart({ evaluations }: { evaluations: ModelEval
       <ResponsiveContainer width="100%" height="100%">
         <ScatterChart margin={{ top: 16, right: 14, bottom: 18, left: 12 }}>
           <CartesianGrid stroke="var(--chart-grid)" />
-          <XAxis type="number" dataKey="k" name="K" allowDecimals={false} tick={{ fill: 'var(--text-muted)', fontSize: 10 }} tickLine={false} axisLine={{ stroke: 'var(--border-strong)' }} label={{ value: 'Number of clusters (K)', position: 'insideBottom', offset: -10, fill: 'var(--text-secondary)', fontSize: 10 }} />
-          <YAxis type="number" dataKey="inertia" name="Inertia" tick={{ fill: 'var(--text-muted)', fontSize: 10 }} tickLine={false} axisLine={false} width={52} />
+          <XAxis type="number" dataKey="k" name="K" allowDecimals={false} tick={{ fill: 'var(--text-muted)', fontSize: 12 }} tickLine={false} axisLine={false} label={{ value: 'Number of clusters (K)', position: 'insideBottom', offset: -10, fill: 'var(--text-secondary)', fontSize: 12 }} />
+          <YAxis type="number" dataKey="inertia" name="Inertia" tick={{ fill: 'var(--text-muted)', fontSize: 12 }} tickLine={false} axisLine={false} width={58} />
           <Tooltip cursor={{ stroke: 'var(--chart-cursor)', strokeDasharray: '4 4' }} content={({ active, payload }) => {
             if (!active || !payload?.length) return null
             const item = payload[0].payload as typeof data[number]
             return <div className="chart-tooltip"><strong>{item.id}</strong><span>K = {item.k}</span><span>Inertia: {item.inertia}</span></div>
           }} />
-          <Scatter name="Experiment inertia" data={data} fill="var(--quality-violet)" isAnimationActive={false} />
+          <Scatter name="Experiment inertia" data={data} fill="var(--series-2)" isAnimationActive={chartMotionAllowed()} animationDuration={700} animationEasing="ease-out" />
         </ScatterChart>
       </ResponsiveContainer>
     </div>

@@ -4,6 +4,10 @@ import type { LucideIcon } from 'lucide-react'
 import { DataQualitySections } from '../components/data-quality/DataQualitySections'
 import { dataQualityService, DataQualityConfigurationError, type DataQualityService } from '../services/dataQualityService'
 import type { DataQualitySnapshot } from '../types/dataQuality'
+import { formatNumber } from '../utils/format'
+import { getUserFacingError } from '../services/userFacingError'
+import { PageSkeleton } from '../components/PageSkeleton'
+import { CountUp } from '../components/ui/CountUp'
 
 type LoadState = 'loading' | 'connected' | 'unconnected' | 'error'
 
@@ -11,8 +15,8 @@ interface DataQualityPageProps {
   service?: DataQualityService
 }
 
-function formatCount(value?: number): string {
-  return value === undefined ? 'Belum tersedia' : new Intl.NumberFormat('id-ID').format(value)
+function formatCount(value?: number): number | string {
+  return value === undefined ? String.fromCharCode(0x2014) : value
 }
 
 function formatDateRange(snapshot?: DataQualitySnapshot | null): string {
@@ -37,11 +41,11 @@ function statusText(snapshot?: DataQualitySnapshot): string {
   return 'Validasi melaporkan masalah'
 }
 
-function SummaryCard({ icon: Icon, label, value, accent }: { icon: LucideIcon; label: string; value: string; accent: string }) {
+function SummaryCard({ icon: Icon, label, value, accent }: { icon: LucideIcon; label: string; value: number | string; accent: string }) {
   return (
     <article className={`quality-summary-card quality-accent-${accent}`}>
       <div className="quality-summary-icon"><Icon size={18} strokeWidth={1.8} aria-hidden="true" /></div>
-      <div className="quality-summary-copy"><span>{label}</span><strong>{value}</strong></div>
+      <div className="quality-summary-copy"><span>{label}</span><strong>{typeof value === 'number' ? <CountUp value={value} format={(number) => formatNumber(number)} /> : value}</strong></div>
     </article>
   )
 }
@@ -60,7 +64,7 @@ export function DataQualityPage({ service = dataQualityService }: DataQualityPag
       setRequest({ service, snapshot: result, state: result ? 'connected' : 'unconnected' })
     }).catch((reason: unknown) => {
       if (controller.signal.aborted) return
-      setRequest({ service, error: reason instanceof Error ? reason.message : 'Profil kualitas data gagal dimuat.', state: reason instanceof DataQualityConfigurationError ? 'unconnected' : 'error' })
+      setRequest({ service, error: getUserFacingError(reason), state: reason instanceof DataQualityConfigurationError ? 'unconnected' : 'error' })
     })
     return () => controller.abort()
   }, [service])
@@ -69,10 +73,10 @@ export function DataQualityPage({ service = dataQualityService }: DataQualityPag
   const validationLabel = snapshot ? statusText(snapshot) : 'Menunggu data dari backend'
 
   return (
-    <div className="data-quality-page">
-      <header className="quality-page-heading">
+    <div className="data-quality-page" data-loading={loadState === 'loading'}>
+      <header className="quality-page-heading reveal reveal-0">
         <div>
-          <p className="eyebrow">Dataset observability</p>
+
           <h1>Data Status / Quality</h1>
           <p className="quality-page-description">Pantau kondisi dataset dan tinjau dampak aturan pembersihan sebelum menggunakan hasil analitik.</p>
         </div>
@@ -87,24 +91,24 @@ export function DataQualityPage({ service = dataQualityService }: DataQualityPag
         </span>
         <div className="connection-copy">
           <strong>{loadState === 'loading' ? 'Memuat profil dataset' : loadState === 'connected' ? snapshot?.dataset.readStatus === 'failed' ? 'Gagal membaca dataset' : 'Profil diterima dari backend' : loadState === 'error' ? 'Profil dataset gagal dibaca' : 'Belum terhubung'}</strong>
-          <span>{error || snapshot?.dataset.errorMessage || (loadState === 'connected' ? `Pemeriksaan terakhir: ${formatTimestamp(snapshot?.dataset.lastCheckedAt)}` : 'Menunggu data dari backend. Status ini bukan hasil pemeriksaan dataset.')}</span>
+          <span>{error || (snapshot?.dataset.readStatus === 'failed' ? 'Dataset belum dapat dibaca.' : loadState === 'connected' ? `Pemeriksaan terakhir: ${formatTimestamp(snapshot?.dataset.lastCheckedAt)}` : 'Menunggu data dari backend. Status ini bukan hasil pemeriksaan dataset.')}</span>
         </div>
         {loadState === 'connected' && snapshot?.source === 'api' && <span className="quality-source-badge">Data backend</span>}
       </section>
 
-      {loadState === 'loading' && <div className="quality-loading" role="status" aria-label="Loading data quality profile"><span /><span /><span /><span /></div>}
-
-      <section className="dataset-identity panel" aria-labelledby="dataset-name">
+      {loadState === 'loading' && <PageSkeleton variant="quality" />}
+      <div className="quality-loaded-content" hidden={loadState === 'loading'}>
+      <section className="dataset-identity panel reveal reveal-1" aria-labelledby="dataset-name">
         <div className="dataset-identity-icon"><Database size={20} aria-hidden="true" /></div>
         <div className="dataset-identity-copy">
-          <p className="eyebrow">Dataset reference</p>
+
           <h2 id="dataset-name">UCI Online Retail II</h2>
-          <p>Identitas file: {snapshot?.dataset.fileIdentity ?? 'Belum dilaporkan oleh sumber data'}</p>
+          <p>Identitas file: {snapshot?.dataset.fileIdentity || 'Belum dilaporkan oleh sumber data'}</p>
         </div>
         <div className="dataset-read-status"><span>Status pembacaan</span><strong>{snapshot?.dataset.readStatus === 'available' ? 'Tersedia' : snapshot?.dataset.readStatus === 'failed' ? 'Gagal dibaca' : 'Belum terhubung'}</strong></div>
       </section>
 
-      <section className="quality-summary-grid" aria-label="Dataset summary">
+      <section className="quality-summary-grid reveal reveal-2" aria-label="Dataset summary">
         <SummaryCard icon={Rows3} label="Jumlah baris" value={formatCount(snapshot?.dataset.rowCount)} accent="blue" />
         <SummaryCard icon={Database} label="Jumlah kolom" value={formatCount(snapshot?.dataset.columnCount)} accent="teal" />
         <SummaryCard icon={CalendarDays} label="Rentang tanggal transaksi" value={formatDateRange(snapshot)} accent="indigo" />
@@ -112,8 +116,8 @@ export function DataQualityPage({ service = dataQualityService }: DataQualityPag
       </section>
 
       <DataQualitySections snapshot={snapshot} />
+      </div>
 
-      {readFailed && snapshot?.dataset.errorMessage && <p className="quality-error-note">Detail pembacaan: {snapshot.dataset.errorMessage}</p>}
       {readFailed && !error && snapshot?.dataset.readStatus === 'failed' && <p className="quality-error-note">Backend melaporkan dataset gagal dibaca. Periksa pesan error atau log yang disediakan backend.</p>}
       <p className="quality-last-checked"><FileSearch size={14} aria-hidden="true" /> Waktu pemeriksaan terakhir: {formatTimestamp(snapshot?.dataset.lastCheckedAt)}</p>
     </div>

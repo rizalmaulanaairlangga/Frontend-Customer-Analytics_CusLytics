@@ -2,6 +2,8 @@ import { useId, useMemo, useState } from 'react'
 import { AlertTriangle, BarChart3, Check, ChevronDown, ChevronUp, CircleHelp, FileWarning, Info, Rows3, Search, ShieldAlert, ShieldCheck, Tags } from 'lucide-react'
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import type { ConceptualColumn, DataQualitySnapshot, QualityCategory, QualityColumn, QualityIndicatorId, RuleStatus, ValidationStatus } from '../../types/dataQuality'
+import { formatNumber } from '../../utils/format'
+import { StateBlock } from '../StateBlock'
 
 interface DataQualitySectionsProps { snapshot: DataQualitySnapshot | null }
 
@@ -21,7 +23,11 @@ const categoryNames: Record<QualityCategory, string> = {
 }
 
 const categoryColors: Record<QualityCategory, string> = {
-  missing: 'var(--quality-amber)', duplicate: 'var(--quality-violet)', anomaly: 'var(--quality-red)', identity: 'var(--quality-teal)',
+  missing: 'var(--series-3)', duplicate: 'var(--series-2)', anomaly: 'var(--series-4)', identity: 'var(--series-1)',
+}
+
+function chartMotionAllowed() {
+  return typeof window.matchMedia !== 'function' || !window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
 const conceptualColumns: Array<{ name: ConceptualColumn; role: string }> = [
@@ -44,7 +50,7 @@ const pendingRules = [
 ]
 
 function numberText(value: number | null | undefined): string {
-  return value === null || value === undefined ? 'Belum tersedia' : new Intl.NumberFormat('id-ID').format(value)
+  return value === null || value === undefined ? '—' : formatNumber(value)
 }
 
 function validationText(status?: ValidationStatus): string {
@@ -95,11 +101,13 @@ export function DataQualitySections({ snapshot }: DataQualitySectionsProps) {
     set(current === value ? null : value)
   }
 
+  if (!snapshot) return <StateBlock kind="unavailable" title="Rincian kualitas belum tersedia" detail="Backend belum mengirim profil, temuan, atau audit pemrosesan." />
+
   return (
     <>
       <section className="quality-section" aria-labelledby="columns-title">
         <div className="quality-section-heading">
-          <div><p className="eyebrow">Schema profile</p><h2 id="columns-title">Struktur dan validasi kolom</h2><p>Nama sumber dan tipe terdeteksi hanya muncul jika disediakan oleh backend.</p></div>
+          <div><h2 id="columns-title">Struktur dan validasi kolom</h2><p>Nama sumber dan tipe terdeteksi hanya muncul jika disediakan oleh backend.</p></div>
           <label className="column-search"><Search size={16} aria-hidden="true" /><span className="sr-only">Search columns</span><input type="search" aria-label="Search columns" placeholder="Cari kolom" value={columnSearch} onChange={(event) => setColumnSearch(event.target.value)} /></label>
         </div>
         {!snapshot && <p className="quality-inline-note"><Info size={15} aria-hidden="true" /> Daftar ini konseptual, belum dicocokkan dengan nama kolom aktual.</p>}
@@ -120,7 +128,7 @@ export function DataQualitySections({ snapshot }: DataQualitySectionsProps) {
 
       <section className="quality-section" aria-labelledby="insights-title">
         <div className="quality-section-heading">
-          <div><p className="eyebrow">Profile findings</p><h2 id="insights-title">Quality insights</h2><p>Warna menunjukkan kategori temuan, bukan tingkat keparahan.</p></div>
+          <div><h2 id="insights-title">Quality insights</h2><p>Warna menunjukkan kategori temuan, bukan tingkat keparahan.</p></div>
           <span className="quality-section-tag"><CircleHelp size={14} aria-hidden="true" /> Detail tersedia saat backend terhubung</span>
         </div>
         <div className="quality-insight-grid">
@@ -143,19 +151,19 @@ export function DataQualitySections({ snapshot }: DataQualitySectionsProps) {
       </section>
 
       <section className="quality-section" aria-labelledby="findings-chart-title">
-        <div className="quality-section-heading"><div><p className="eyebrow">Finding distribution</p><h2 id="findings-chart-title">Temuan menurut kategori</h2><p>Grafik hanya memakai agregat kategori yang dikirim backend.</p></div></div>
+        <div className="quality-section-heading"><div><h2 id="findings-chart-title">Temuan menurut kategori</h2><p>Grafik hanya memakai agregat kategori yang dikirim backend.</p></div></div>
         {categories.length === 0 ? <div className="quality-chart-empty"><BarChart3 size={19} aria-hidden="true" /><p>Belum ada temuan kualitas data yang tersedia.</p><span>Grafik menunggu jumlah temuan aktual dari backend.</span></div> : <>
           <div className="quality-chart" aria-label="Quality findings by category">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={categories} layout="vertical" margin={{ top: 6, right: 24, left: 12, bottom: 4 }}>
-                <CartesianGrid stroke="var(--chart-grid)" horizontal={false} />
-                <XAxis type="number" allowDecimals={false} tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={{ stroke: 'var(--border)' }} tickLine={false} />
-                <YAxis type="category" dataKey="label" width={170} tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <CartesianGrid stroke="var(--chart-grid)" vertical={false} />
+                <XAxis type="number" allowDecimals={false} tick={{ fill: 'var(--text-muted)', fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="label" width={170} tick={{ fill: 'var(--text-secondary)', fontSize: 12 }} axisLine={false} tickLine={false} />
                 <Tooltip content={({ active, payload }) => {
                   const entry = payload?.[0]?.payload as (typeof categories)[number] | undefined
                   return active && entry ? <div className="quality-chart-tooltip"><strong>{entry.label}</strong><span>{numberText(entry.count)} temuan</span><small>{entry.detail ?? 'Agregat sebagaimana dilaporkan backend.'}</small></div> : null
                 }} />
-                <Bar dataKey="count" name="Jumlah temuan" radius={[0, 5, 5, 0]} isAnimationActive={false} onClick={(entry) => {
+                <Bar dataKey="count" name="Jumlah temuan" radius={[0, 5, 5, 0]} isAnimationActive={chartMotionAllowed()} animationDuration={700} animationEasing="ease-out" onClick={(entry) => {
                   if (entry && typeof entry === 'object' && 'category' in entry) setSelectedCategory(entry.category as QualityCategory)
                 }}>
                   {categories.map((item) => <Cell key={item.category} fill={categoryColors[item.category]} />)}
@@ -173,7 +181,7 @@ export function DataQualitySections({ snapshot }: DataQualitySectionsProps) {
       </section>
 
       <section className="quality-section" aria-labelledby="audit-title">
-        <div className="quality-section-heading"><div><p className="eyebrow">Processing trace</p><h2 id="audit-title">Preprocessing &amp; cleaning audit</h2><p>Baris dan aturan hanya ditampilkan sebagai sudah diterapkan jika backend menyatakannya.</p></div></div>
+        <div className="quality-section-heading"><div><h2 id="audit-title">Preprocessing &amp; cleaning audit</h2><p>Baris dan aturan hanya ditampilkan sebagai sudah diterapkan jika backend menyatakannya.</p></div></div>
         <div className="audit-summary-grid">
           <AuditSummary icon={Rows3} label="Baris sebelum pemrosesan" value={snapshot?.cleaningAudit.rowCounts.before} />
           <AuditSummary icon={Check} label="Baris dipertahankan" value={snapshot?.cleaningAudit.rowCounts.retained} />
@@ -194,7 +202,7 @@ export function DataQualitySections({ snapshot }: DataQualitySectionsProps) {
       </section>
 
       <section className="quality-section validation-section" aria-labelledby="validation-title">
-        <div className="quality-section-heading"><div><p className="eyebrow">Review before analysis</p><h2 id="validation-title">Validation &amp; warnings</h2><p>Potensi dampak dan tindakan mengikuti pesan yang tersedia dari backend.</p></div></div>
+        <div className="quality-section-heading"><div><h2 id="validation-title">Validation &amp; warnings</h2><p>Potensi dampak dan tindakan mengikuti pesan yang tersedia dari backend.</p></div></div>
         {!snapshot ? <div className="validation-empty"><Info size={17} aria-hidden="true" /><div><strong>Menunggu hasil pemeriksaan</strong><p>Peringatan dan dampak analitik belum dapat ditentukan tanpa hasil backend.</p></div></div>
           : snapshot.warnings.length === 0 ? <div className="validation-empty"><Check size={17} aria-hidden="true" /><div><strong>Backend tidak melaporkan peringatan</strong><p>Status ini hanya berlaku untuk profil yang diterima.</p></div></div>
             : <div className="warning-list">{snapshot.warnings.map((warning, index) => <article className="quality-warning" key={`${warning.title}-${index}`}>
