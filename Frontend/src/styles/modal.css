@@ -1,0 +1,26 @@
+.modal-backdrop { position: fixed; z-index: 1500; inset: 0; display: grid; place-items: center; padding: 24px; background: color-mix(in srgb, var(--ink) 46%, transparent); animation: modal-backdrop-in var(--dur-fast) ease-out both; }
+.modal-dialog { width: min(520px, 100%); max-height: min(90vh, 760px); overflow: auto; padding: 22px; border: 1px solid var(--border); border-radius: var(--radius-lg); color: var(--text); background: var(--bg-raised); box-shadow: var(--shadow-md); animation: modal-dialog-in var(--dur-base) var(--ease-out) both; }
+.overview-filter-dialog-heading { margin-bottom: 18px; }
+.overview-filter-dialog-heading h2 { margin: 0 0 5px; font-size: var(--fs-title); }
+.overview-filter-dialog-heading p { margin: 0; color: var(--text-muted); font-size: var(--fs-caption); }
+.modal-dialog .filter-bar { display: grid; gap: 18px; }
+.modal-dialog .filter-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.modal-dialog .field-country { grid-column: 1 / -1; }
+.modal-dialog .filter-actions { margin-top: 0; }
+.modal-dialog .historical-note { margin: 14px 0 0; }
+.overview-filter-actions { display: flex; min-width: 0; align-items: center; justify-content: flex-end; gap: 10px; }
+.overview-filter-button { flex: 0 0 auto; gap: 7px; }
+.filter-count-badge { display: inline-grid; width: 20px; height: 20px; place-items: center; border-radius: 50%; color: var(--on-primary); background: var(--primary); font-size: 11px; font-weight: 700; }
+.overview-filter-chips { display: flex; min-width: 0; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+@keyframes modal-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modal-dialog-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 640px) {
+  .modal-backdrop { align-items: end; padding: 0; }
+  .modal-dialog { width: 100%; max-height: 90vh; padding: 20px 16px max(20px, env(safe-area-inset-bottom)); border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+  .overview-filter-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+  .overview-filter-chips { justify-content: flex-start; }
+  .overview-title-row { align-items: flex-start; }
+  .modal-dialog .filter-fields { grid-template-columns: minmax(0, 1fr); }
+  .modal-dialog .field-country { grid-column: auto; }
+}
+@media (prefers-reduced-motion: reduce) { .modal-backdrop, .modal-dialog { animation: none; } }

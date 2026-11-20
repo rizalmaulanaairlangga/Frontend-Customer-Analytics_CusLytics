@@ -3,12 +3,14 @@ import { Link } from 'react-router-dom'
 import { CalendarDays, Layers3, UsersRound, UserRoundCheck, ArrowUpRight } from 'lucide-react'
 import { CustomerAnalyticsCharts } from '../components/customer-analytics/CustomerAnalyticsCharts'
 import { getUserFacingError } from '../services/userFacingError'
+import { PageSkeleton } from '../components/PageSkeleton'
 import { CustomerDirectory } from '../components/customer-analytics/CustomerDirectory'
 import { customerAnalyticsService } from '../services/customerAnalyticsService'
 import type { CustomerAnalyticsService, CustomerAnalyticsSnapshot } from '../types/customerAnalytics'
 import { formatNumber } from '../utils/format'
 import { StateBlock } from '../components/StateBlock'
 import { InfoTip } from '../components/InfoTip'
+import { CountUp } from '../components/ui/CountUp'
 
 type LoadState = 'loading' | 'success' | 'unavailable' | 'error'
 interface RequestState { service: CustomerAnalyticsService; retry: number; state: LoadState; message?: string }
@@ -18,12 +20,13 @@ function isConfigurationError(reason: unknown): boolean {
   return message.includes('VITE_API_BASE_URL') || message.includes('VITE_CUSTOMER_ANALYTICS_RESOURCE_PATH') || message.includes('VITE_DATA_MODE')
 }
 
-function MetricCard({ label, value, definition, icon: Icon, accent }: { label: string; value: string; definition: string; icon: typeof UsersRound; accent: string }) {
-  return <article className={`customer-kpi ${accent}`} aria-label={`${label}: ${value}`}><div className="customer-kpi-heading"><span className="customer-kpi-icon"><Icon size={18} aria-hidden="true" /></span><span>{label}</span><InfoTip label={`${label} definition`}>{definition}</InfoTip></div><strong>{value}</strong></article>
+function MetricCard({ label, value, definition, icon: Icon, accent }: { label: string; value: number | string; definition: string; icon: typeof UsersRound; accent: string }) {
+  const displayValue = typeof value === 'number' ? <CountUp value={value} format={(number) => formatNumber(number, { maximumFractionDigits: 0 })} /> : value
+  return <article className={`customer-kpi ${accent}`} aria-label={`${label}: ${typeof value === 'number' ? formatNumber(value, { maximumFractionDigits: 0 }) : value}`}><div className="customer-kpi-heading"><span className="customer-kpi-icon"><Icon size={18} aria-hidden="true" /></span><span>{label}</span><InfoTip label={`${label} definition`}>{definition}</InfoTip></div><strong>{displayValue}</strong></article>
 }
 
-function suppliedNumber(value: number | null | undefined): string {
-  return value == null ? '—' : formatNumber(value, { maximumFractionDigits: 0 })
+function suppliedNumber(value: number | null | undefined): number | string {
+  return value == null ? '—' : value
 }
 
 function segmentationLabel(status: CustomerAnalyticsSnapshot['summary']['segmentationStatus'] | undefined): string {
@@ -59,19 +62,18 @@ export function CustomerAnalyticsPage({ service = customerAnalyticsService }: { 
   const segmentation = segmentationLabel(ready?.summary.segmentationStatus)
 
   return (
-    <div className="customer-analytics-page">
-      <header className="customer-page-heading"><div><h1>Customer Analytics</h1><p className="page-description">Eksplorasi perilaku pembelian pelanggan melalui Recency, Frequency, dan Monetary.</p>{ready?.summary.analysisPeriod && <p className="customer-period"><CalendarDays size={14} aria-hidden="true" /><span>Periode analisis: <strong>{ready.summary.analysisPeriod.start} — {ready.summary.analysisPeriod.end}</strong></span></p>}</div></header>
+    <div className="customer-analytics-page" data-loading={loadState === 'loading'}>
+      <header className="customer-page-heading reveal reveal-0"><div><h1>Customer Analytics</h1><p className="page-description">Eksplorasi perilaku pembelian pelanggan melalui Recency, Frequency, dan Monetary.</p>{ready?.summary.analysisPeriod && <p className="customer-period"><CalendarDays size={14} aria-hidden="true" /><span>Periode analisis: <strong>{ready.summary.analysisPeriod.start} — {ready.summary.analysisPeriod.end}</strong></span></p>}</div></header>
 
-      {loadState === 'loading' && <StateBlock kind="loading" title="Memuat customer analytics" detail="Menunggu respons sumber data." />}{loadState === 'unavailable' && <StateBlock kind="unavailable" title="Belum terhubung ke backend" detail={message ?? 'Mode demo tidak menyediakan data RFM. Tidak ada fixture pelanggan pada halaman ini.'} />}{loadState === 'error' && <StateBlock kind="error" title="Customer analytics gagal dimuat" detail={message ?? 'Periksa koneksi lalu coba lagi.'} action={<button className="button button-secondary" type="button" onClick={() => setRetry((value) => value + 1)}>Coba lagi</button>} />}
+      {loadState === 'loading' && <PageSkeleton variant="customers" />}{loadState === 'unavailable' && <StateBlock kind="unavailable" title="Belum terhubung ke backend" detail={message ?? 'Mode demo tidak menyediakan data RFM. Tidak ada fixture pelanggan pada halaman ini.'} />}{loadState === 'error' && <StateBlock kind="error" title="Customer analytics gagal dimuat" detail={message ?? 'Periksa koneksi lalu coba lagi.'} action={<button className="button button-secondary" type="button" onClick={() => setRetry((value) => value + 1)}>Coba lagi</button>} />}
 
-      <section className="customer-kpi-grid" aria-label="Customer and segmentation summary">
-        <MetricCard label="Eligible Customers" value={suppliedNumber(ready?.summary.eligibleCustomers)} definition="Jumlah pelanggan yang memenuhi kriteria dan dilaporkan oleh sumber data." icon={UsersRound} accent="summary-neutral" />
-        <MetricCard label="Customers with RFM Profiles" value={suppliedNumber(ready?.summary.customersWithRfmProfiles)} definition="Jumlah pelanggan dengan profil Recency, Frequency, dan Monetary yang dilaporkan sumber." icon={UserRoundCheck} accent="rfm-frequency" />
+      <section className="customer-kpi-grid reveal reveal-1" aria-label="Customer and segmentation summary">
+        <MetricCard label="Eligible Customers" value={suppliedNumber(ready?.summary.eligibleCustomers)} definition="Jumlah pelanggan yang memenuhi kriteria dan dilaporkan oleh sumber data." icon={UsersRound} accent="customer-profile" />
+        <MetricCard label="Customers with RFM Profiles" value={suppliedNumber(ready?.summary.customersWithRfmProfiles)} definition="Jumlah pelanggan dengan profil Recency, Frequency, dan Monetary yang dilaporkan sumber." icon={UserRoundCheck} accent="customer-profile" />
         <MetricCard label="RFM Observation Date" value={observationDate} definition="Tanggal acuan yang digunakan sumber untuk interpretasi Recency." icon={CalendarDays} accent="rfm-recency" />
         <MetricCard label="Segmentation Status" value={segmentation} definition="Status hasil segmentasi yang dilaporkan. Profil RFM tidak otomatis berarti K-Means telah dijalankan." icon={Layers3} accent="summary-cluster" />
       </section>
 
-      {loadState === 'loading' && <div className="customer-loading" role="status" aria-label="Customer analytics loading"><span /><span /><span /><span /></div>}
       {loadState === 'success' && ready && ready.customers.length === 0 && <StateBlock kind="empty" title="Belum ada baris pelanggan" detail="Backend menerima permintaan, tetapi belum mengirim data pelanggan. Ini berbeda dari jumlah nol yang dilaporkan." />}
 
       <CustomerAnalyticsCharts snapshot={ready} />

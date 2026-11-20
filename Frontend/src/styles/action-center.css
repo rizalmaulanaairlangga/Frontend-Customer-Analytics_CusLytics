@@ -25,8 +25,8 @@
 .action-filter-active { padding: 4px 8px; border-radius: 20px; color: var(--blue-600); background: var(--blue-100); font-size: 12px; font-weight: 650; }
 .action-filter-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 11px; }
 .action-filter-grid label { display: grid; gap: 6px; min-width: 0; color: var(--text-secondary); font-size: 12px; font-weight: 650; }
-.action-filter-grid select, .action-filter-grid input { width: 100%; min-width: 0; height: 36px; padding: 0 10px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); color: var(--text); background: var(--control-bg); font: inherit; font-weight: 450; }
-.action-filter-grid select:disabled, .action-filter-grid input:disabled { opacity: .65; cursor: not-allowed; }
+.action-filter-grid .ui-select-trigger, .action-filter-grid input { width: 100%; min-width: 0; min-height: 40px; padding: 0 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); background: var(--bg-sunken); font: inherit; font-weight: 450; }
+.action-filter-grid .ui-select-trigger:disabled, .action-filter-grid input:disabled { opacity: .65; cursor: not-allowed; }
 .action-filter-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--text-muted); font-size: 12px; }
 .action-filter-footer .text-button { margin: 0; }
 .action-recommendation-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 13px; }

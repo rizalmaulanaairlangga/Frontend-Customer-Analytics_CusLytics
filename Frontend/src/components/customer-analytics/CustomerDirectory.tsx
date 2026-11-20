@@ -3,6 +3,7 @@ import { Search, RotateCcw } from 'lucide-react'
 import type { CustomerRfmRecord, RfmMetric } from '../../types/customerAnalytics'
 import { CustomerDetailDrawer } from './CustomerDetailDrawer'
 import { formatCurrency, formatNumber } from '../../utils/format'
+import { Select } from '../ui/Select'
 
 type SortKey = 'customerId' | RfmMetric
 
@@ -42,8 +43,8 @@ export function CustomerDirectory({ customers, currencyCode, observationDate, an
       <p className="panel-subtitle">Satu baris mewakili satu pelanggan yang disediakan oleh sumber data.</p>
       <div className="customer-table-tools">
         <label className="customer-search"><Search size={15} aria-hidden="true" /><span className="sr-only">Search customers</span><input type="search" role="searchbox" aria-label="Search customers" placeholder="Cari Customer ID" value={query} onChange={(event) => { setQuery(event.target.value); setPage(1) }} /></label>
-        <label className="compact-select customer-table-select"><span>Urutkan</span><select aria-label="Sort customers by" value={sort} onChange={(event) => { setSort(event.target.value as SortKey); setPage(1) }}><option value="customerId">Customer ID</option><option value="recency">Recency</option><option value="frequency">Frequency</option><option value="monetary">Monetary</option></select></label>
-        <label className="compact-select customer-table-select customer-page-size"><span>Baris</span><select aria-label="Rows per page" value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1) }}><option value={5}>5</option><option value={10}>10</option><option value={20}>20</option></select></label>
+        <label className="compact-select customer-table-select"><span>Urutkan</span><Select aria-label="Sort customers by" value={sort} onChange={(value) => { setSort(value as SortKey); setPage(1) }}><option value="customerId">Customer ID</option><option value="recency">Recency</option><option value="frequency">Frequency</option><option value="monetary">Monetary</option></Select></label>
+        <label className="compact-select customer-table-select customer-page-size"><span>Baris</span><Select aria-label="Rows per page" value={String(pageSize)} onChange={(value) => { setPageSize(Number(value)); setPage(1) }}><option value={5}>5</option><option value={10}>10</option><option value={20}>20</option></Select></label>
       </div>
       <div className="customer-table-scroll">
         {!currencyCode && <p className="customer-currency-note">Satuan mata uang Monetary belum dilaporkan oleh sumber data.</p>}

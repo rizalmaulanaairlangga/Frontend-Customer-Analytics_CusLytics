@@ -41,7 +41,7 @@ describe('Reports page', () => {
     expect(screen.getByLabelText('Start date')).toBeTruthy()
     expect(screen.getByLabelText('Country')).toBeTruthy()
     expect(screen.queryByLabelText('Experiment')).toBeNull()
-    expect(screen.getAllByText('Demo Data').length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/illustrative fixture/i).length).toBeGreaterThan(0)
   })
 
   it('validates date ranges, keeps sales filters between related report types, and resets configuration', async () => {
@@ -76,7 +76,7 @@ describe('Reports page', () => {
     expect(within(table).getAllByRole('row')[1].textContent).toContain('P-1')
     await user.selectOptions(screen.getByLabelText('Output format'), 'xlsx')
     expect((await screen.findAllByText(/Excel workbook/i)).length).toBeGreaterThan(0)
-    expect((await screen.findAllByText(/Demo Data/i)).length).toBeGreaterThan(0)
+    expect((await screen.findAllByText(/illustrative fixture/i)).length).toBeGreaterThan(0)
   })
 
   it('previews only supplied RFM records and metadata', async () => {
@@ -109,7 +109,7 @@ describe('Reports page', () => {
     await user.click(screen.getByRole('radio', { name: /Sales Summary/ }))
     await user.selectOptions(screen.getByLabelText('Output format'), 'xlsx')
     fireEvent.click(screen.getByRole('button', { name: 'Export Report' }))
-    expect((await screen.findByRole('alert')).textContent).toMatch(/backend belum terhubung/i)
+    expect((await screen.findByRole('alert')).textContent).toContain('Layanan belum tersedia saat ini.')
     expect((screen.getByLabelText('Output format') as HTMLSelectElement).value).toBe('xlsx')
     expect(screen.queryByText(/Export succeeded/i)).toBeNull()
   })
@@ -126,11 +126,11 @@ describe('Reports page', () => {
     renderReports(makeSources(), exportService)
     await user.click(screen.getByRole('radio', { name: /Sales Summary/ }))
     await user.click(screen.getByRole('button', { name: 'Export Report' }))
-    expect(await screen.findByRole('status')).toBeTruthy()
+    expect((await screen.findAllByText('Unduhan berhasil disiapkan.')).length).toBeGreaterThan(0)
     expect(exportService.exportReport).toHaveBeenCalledWith({ reportType: 'sales-summary', format: 'csv', filters: {} })
     expect(createObjectURL).toHaveBeenCalledWith(blob)
     expect(click).toHaveBeenCalledOnce()
-    expect((await screen.findAllByText(/Download started: sales-summary\.csv/)).length).toBeGreaterThan(0)
+    expect((await screen.findAllByText('Unduhan berhasil disiapkan.')).length).toBeGreaterThan(0)
     click.mockRestore()
   })
 
@@ -138,7 +138,7 @@ describe('Reports page', () => {
     const user = userEvent.setup()
     renderReports(makeSources({ analytics: { getDashboard: vi.fn().mockRejectedValue(new Error('Request failed (503).')) } }))
     await user.click(screen.getByRole('radio', { name: /Sales Summary/ }))
-    expect((await screen.findByRole('alert')).textContent).toContain('Request failed (503).')
+    expect((await screen.findByRole('alert')).textContent).toContain('Terjadi kesalahan yang tidak terduga. Silakan coba kembali beberapa saat lagi.')
     expect(screen.queryByRole('table', { name: 'Sales trend preview' })).toBeNull()
   })
 })

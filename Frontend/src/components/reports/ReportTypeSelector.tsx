@@ -2,7 +2,7 @@ import { reportTypeOptions, type ReportOption } from './reportOptions'
 import type { ReportType } from '../../services/reportsService'
 
 export function ReportTypeSelector({ reportType, onSelect, options = reportTypeOptions, selectedStatus, selectedSource }: { reportType: ReportType | null; onSelect: (type: ReportType) => void; options?: ReportOption[]; selectedStatus: string; selectedSource: string }) {
-  return <fieldset className="reports-type-selector" aria-label="Report type">
+  return <fieldset className="reports-type-selector reveal reveal-1" aria-label="Report type">
     <legend><strong>Report type</strong><span>Select a report to load its available source and configuration.</span></legend>
     <div className="reports-type-grid">
       {options.map(({ id, title, description, requirements, icon: Icon, accent }) => {

@@ -18,15 +18,16 @@
 .customer-kpi-heading { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 12px; font-weight: 650; }
 .customer-kpi-icon { display: grid; width: 28px; height: 28px; flex: 0 0 28px; place-items: center; border-radius: 7px; color: var(--blue-600); background: var(--blue-100); }
 .rfm-recency .customer-kpi-icon { color: var(--rfm-recency); background: color-mix(in srgb, var(--rfm-recency) 12%, var(--surface)); }
+.customer-profile .customer-kpi-icon { color: var(--series-5); background: color-mix(in srgb, var(--series-5) 12%, var(--surface)); }
 .rfm-frequency .customer-kpi-icon { color: var(--rfm-frequency); background: color-mix(in srgb, var(--rfm-frequency) 12%, var(--surface)); }
 .summary-cluster .customer-kpi-icon { color: var(--customer-cluster); background: color-mix(in srgb, var(--customer-cluster) 12%, var(--surface)); }
 .customer-kpi-info { display: grid; width: 20px; height: 20px; margin-left: auto; padding: 0; place-items: center; border: 1px solid var(--border-strong); border-radius: 50%; color: var(--text-muted); background: transparent; font-size: 12px; font-weight: 700; cursor: help; }
 .customer-kpi-info:hover { color: var(--text); border-color: var(--blue-500); background: var(--surface-muted); }
 .customer-kpi > strong { display: block; overflow-wrap: anywhere; margin-top: 13px; color: var(--navy-950); font-family: var(--font-body); font-size: var(--fs-kpi); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
 .customer-kpi > p { margin: 6px 0 0; color: var(--text-muted); font-size: 12px; line-height: 1.45; }
-.customer-loading { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-.customer-loading span { height: 82px; border: 1px solid var(--border); border-radius: var(--radius-md); background: linear-gradient(100deg, var(--surface-muted) 20%, var(--surface) 38%, var(--surface-muted) 58%); background-size: 200% 100%; animation: customer-shimmer 1.3s ease-in-out infinite; }
-@keyframes customer-shimmer { to { background-position-x: -200%; } }
+
+
+
 .customer-no-results { margin: 0; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-secondary); background: var(--surface-muted); font-size: 12px; line-height: 1.5; }
 .customer-explorer { display: grid; min-width: 0; gap: 13px; }
 .customer-section-heading h2 { margin: 0 0 5px; font-size: 19px; letter-spacing: -.3px; }
@@ -46,12 +47,12 @@
 .customer-chart-panel h3 { margin: 0; font-size: 15px; }
 .customer-chart-panel .panel-subtitle { margin: 8px 0 0; }
 .customer-chart-panel .compact-select { min-width: 125px; }
-.customer-chart-panel select { min-height: 33px; }
+.customer-chart-panel .ui-select-trigger { min-height: 40px; }
 .customer-chart { width: 100%; height: 244px; margin-top: 10px; }
 .customer-chart-empty { display: grid; min-height: 244px; place-items: center; margin: 0; padding: 18px; color: var(--text-muted); background: var(--surface-muted); border: 1px dashed var(--border-strong); border-radius: 8px; font-size: 12px; line-height: 1.5; text-align: center; }
 .customer-axis-controls { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 13px; }
 .customer-axis-controls .compact-select { display: grid; gap: 4px; color: var(--text-muted); font-size: 12px; }
-.customer-axis-controls select { width: 135px; }
+.customer-axis-controls .ui-select-trigger { width: 135px; }
 .customer-chart-panel .recharts-cartesian-axis-tick-value { fill: var(--text-muted); }
 .cluster-notice { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 13px; padding: 15px 16px; border: 1px solid color-mix(in srgb, var(--customer-cluster) 34%, var(--border)); border-radius: var(--radius-md); background: color-mix(in srgb, var(--customer-cluster) 6%, var(--surface)); }
 .cluster-notice-icon { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 9px; color: var(--customer-cluster); background: color-mix(in srgb, var(--customer-cluster) 14%, var(--surface)); }
@@ -70,7 +71,7 @@
 .customer-search:focus-within { border-color: var(--blue-500); box-shadow: 0 0 0 2px color-mix(in srgb, var(--blue-500) 22%, transparent); }
 .customer-search input { width: 100%; min-width: 0; height: 34px; border: 0; outline: 0; color: var(--text); background: transparent; font-size: 12px; }
 .customer-table-select { display: grid; width: 158px; gap: 4px; color: var(--text-secondary); font-size: 12px; }
-.customer-table-select select { min-height: 36px; font-size: 12px; }
+.customer-table-select .ui-select-trigger { min-height: 40px; font-size: 12px; }
 .customer-page-size { width: 88px; }
 .customer-table-scroll { width: 100%; overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; scrollbar-color: var(--border-strong) transparent; }
 .customer-currency-note { margin: 0; padding: 8px 11px; border-bottom: 1px solid var(--border); color: var(--text-muted); background: var(--surface-muted); font-size: 12px; }
@@ -153,7 +154,7 @@
   .customer-kpi > strong { font-size: var(--fs-kpi); }
   .customer-kpi > p { font-size: 12px; }
   .customer-axis-controls { display: grid; grid-template-columns: 1fr 1fr; }
-  .customer-axis-controls select { width: 100%; }
+  .customer-axis-controls .ui-select-trigger { width: 100%; }
   .cluster-notice { gap: 9px; padding: 12px; }
   .customer-directory .panel-heading { align-items: flex-start; flex-direction: column; }
   .customer-detail-metrics { gap: 6px; }

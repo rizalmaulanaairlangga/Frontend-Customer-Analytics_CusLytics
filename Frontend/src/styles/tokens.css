@@ -62,11 +62,17 @@
   --series-4: var(--coral);
   --series-5: var(--plum);
   --series-6: var(--slate);
+  --series-7: #4E9A3E;
+  --series-8: #C74B7B;
+  --series-9: #2A8BC4;
+  --series-10: #8A6A3D;
   --chart-grid: var(--border);
   --chart-cursor: var(--border-strong);
 
   /* Sidebar */
   --sidebar-bg: #EFEBE3;
+  --sidebar-hover-bg: #E3DDD0;
+  --sidebar-hover-text: var(--text);
   --sidebar-text: #303A42;
   --sidebar-text-muted: #5B6470;
   --sidebar-active-bg: #FFFFFF;
@@ -151,10 +157,10 @@
   --blue-100: var(--primary-soft);
   --indigo-500: var(--series-2);
   --geo-coral: var(--series-4);
-  --rfm-recency: var(--series-1);
+  --rfm-recency: var(--series-6);
   --rfm-frequency: var(--series-2);
-  --rfm-monetary: var(--series-3);
-  --customer-profile: var(--series-1);
+  --rfm-monetary: var(--series-1);
+  --customer-profile: var(--series-5);
   --customer-cluster: var(--series-6);
   --cluster-1: var(--series-1);
   --cluster-2: var(--series-2);
@@ -216,10 +222,16 @@
   --info-soft: #1A2D3F;
   --info-fg: #B5D8FF;
   --series-3: var(--saffron);
+  --series-7: #8CCB6A;
+  --series-8: #F08AB0;
+  --series-9: #6BC1F0;
+  --series-10: #C9A272;
   --chart-grid: var(--border);
   --chart-cursor: var(--border-strong);
 
   --sidebar-bg: #0A0F10;
+  --sidebar-hover-bg: #243234;
+  --sidebar-hover-text: var(--text);
   --sidebar-text: #D3DEDC;
   --sidebar-text-muted: #9BAEAB;
   --sidebar-active-bg: #182426;

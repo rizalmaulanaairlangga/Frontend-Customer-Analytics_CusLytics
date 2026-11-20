@@ -1,7 +1,7 @@
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis } from 'recharts'
 import type { EvaluationCluster, EvaluationPoint, ModelEvaluationSnapshot } from '../../types/modelEvaluation'
-import { clusterColor } from './clusterPalette'
 import { formatNumber } from '../../utils/format'
+import { getItemColor } from '../../constants/metricColors'
 
 function chartMotionAllowed() {
   return typeof window.matchMedia !== 'function' || !window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -36,7 +36,7 @@ export function ClusterDistributionChart({ snapshot }: { snapshot: ModelEvaluati
             return <div className="chart-tooltip"><strong>{cluster.label}</strong><span>{formatNumber(cluster.customerCount)} customers</span><span>{cluster.displayPercentage == null ? 'Percentage unavailable' : `${formatNumber(cluster.displayPercentage, { maximumFractionDigits: 1 })}% of evaluated customers`}</span></div>
           }} />
           <Bar dataKey="customerCount" name="Customers" radius={[5, 5, 0, 0]} isAnimationActive={chartMotionAllowed()} animationDuration={700} animationEasing="ease-out">
-            {data.map((cluster, index) => <Cell key={String(cluster.clusterId)} fill={clusterColor(index)} />)}
+            {data.map((cluster) => <Cell key={String(cluster.clusterId)} fill={getItemColor(String(cluster.clusterId), data.map((item) => String(item.clusterId)))} />)}
           </Bar>
         </BarChart>
       </ResponsiveContainer>}
@@ -75,10 +75,10 @@ export function ClusterScatterChart({ snapshot, xAxis, yAxis }: { snapshot: Mode
             const cluster = snapshot.clusters[clusterIndex(snapshot.clusters, point.clusterId)]
             return <div className="chart-tooltip"><strong>{point.customerId}</strong><span>{axes[xAxis].label}: {point[xAxis]}</span><span>{axes[yAxis].label}: {point[yAxis]}</span><span>{clusterLabel(point.clusterId)}</span>{cluster && <span>{cluster.customerCount} customers in this cluster</span>}</div>
           }} />
-          {snapshot.clusters.map((cluster, index) => <Scatter key={String(cluster.clusterId)} name={clusterLabel(cluster.clusterId)} data={points.filter((point) => point.clusterId === cluster.clusterId)} fill={clusterColor(index)} isAnimationActive={chartMotionAllowed()} animationDuration={700} animationEasing="ease-out" />)}
+          {snapshot.clusters.map((cluster) => <Scatter key={String(cluster.clusterId)} name={clusterLabel(cluster.clusterId)} data={points.filter((point) => point.clusterId === cluster.clusterId)} fill={getItemColor(String(cluster.clusterId), snapshot.clusters.map((item) => String(item.clusterId)))} isAnimationActive={chartMotionAllowed()} animationDuration={700} animationEasing="ease-out" />)}
         </ScatterChart>
       </ResponsiveContainer></div>
-      <ul className="evaluation-cluster-legend" aria-label="Cluster color legend">{snapshot.clusters.map((cluster, index) => <li key={String(cluster.clusterId)}><span aria-hidden="true" style={{ backgroundColor: clusterColor(index) }}/>{clusterLabel(cluster.clusterId)}</li>)}</ul>
+      {snapshot.clusters.length > 1 && <ul className="evaluation-cluster-legend" aria-label="Cluster color legend">{snapshot.clusters.map((cluster) => <li key={String(cluster.clusterId)}><span aria-hidden="true" style={{ backgroundColor: getItemColor(String(cluster.clusterId), snapshot.clusters.map((item) => String(item.clusterId))) }}/>{clusterLabel(cluster.clusterId)}</li>)}</ul>}
       </>}
     </div>
   )

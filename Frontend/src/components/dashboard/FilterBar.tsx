@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import type { DashboardFilters } from '../../types/analytics'
 import { validateDashboardFilters } from './filterValidation'
+import { Select } from '../ui/Select'
+import { DatePicker } from '../ui/DatePicker'
 
 interface FilterBarProps {
   value: DashboardFilters
@@ -35,18 +37,18 @@ export function FilterBar({ value, countries, onChange, onApply }: FilterBarProp
       <div className="filter-fields">
         <label className="field-label">
           <span>Start date</span>
-          <input type="date" value={value.startDate} onChange={(event) => onChange({ ...value, startDate: event.target.value })} />
+          <DatePicker aria-label="Start date" value={value.startDate} onChange={(startDate) => onChange({ ...value, startDate })} max={value.endDate || undefined} />
         </label>
         <label className="field-label">
           <span>End date</span>
-          <input type="date" value={value.endDate} onChange={(event) => onChange({ ...value, endDate: event.target.value })} />
+          <DatePicker aria-label="End date" value={value.endDate} onChange={(endDate) => onChange({ ...value, endDate })} min={value.startDate || undefined} />
         </label>
         <label className="field-label field-country">
           <span>Country</span>
-          <select value={value.country} onChange={(event) => onChange({ ...value, country: event.target.value })}>
+          <Select aria-label="Country" value={value.country} onChange={(country) => onChange({ ...value, country })}>
             <option value="">All countries</option>
             {countries.map((country) => <option key={country} value={country}>{country}</option>)}
-          </select>
+          </Select>
         </label>
       </div>
       <div className="filter-actions">

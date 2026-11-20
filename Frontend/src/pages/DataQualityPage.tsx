@@ -6,6 +6,8 @@ import { dataQualityService, DataQualityConfigurationError, type DataQualityServ
 import type { DataQualitySnapshot } from '../types/dataQuality'
 import { formatNumber } from '../utils/format'
 import { getUserFacingError } from '../services/userFacingError'
+import { PageSkeleton } from '../components/PageSkeleton'
+import { CountUp } from '../components/ui/CountUp'
 
 type LoadState = 'loading' | 'connected' | 'unconnected' | 'error'
 
@@ -13,8 +15,8 @@ interface DataQualityPageProps {
   service?: DataQualityService
 }
 
-function formatCount(value?: number): string {
-  return value === undefined ? '—' : formatNumber(value)
+function formatCount(value?: number): number | string {
+  return value === undefined ? String.fromCharCode(0x2014) : value
 }
 
 function formatDateRange(snapshot?: DataQualitySnapshot | null): string {
@@ -39,11 +41,11 @@ function statusText(snapshot?: DataQualitySnapshot): string {
   return 'Validasi melaporkan masalah'
 }
 
-function SummaryCard({ icon: Icon, label, value, accent }: { icon: LucideIcon; label: string; value: string; accent: string }) {
+function SummaryCard({ icon: Icon, label, value, accent }: { icon: LucideIcon; label: string; value: number | string; accent: string }) {
   return (
     <article className={`quality-summary-card quality-accent-${accent}`}>
       <div className="quality-summary-icon"><Icon size={18} strokeWidth={1.8} aria-hidden="true" /></div>
-      <div className="quality-summary-copy"><span>{label}</span><strong>{value}</strong></div>
+      <div className="quality-summary-copy"><span>{label}</span><strong>{typeof value === 'number' ? <CountUp value={value} format={(number) => formatNumber(number)} /> : value}</strong></div>
     </article>
   )
 }
@@ -71,8 +73,8 @@ export function DataQualityPage({ service = dataQualityService }: DataQualityPag
   const validationLabel = snapshot ? statusText(snapshot) : 'Menunggu data dari backend'
 
   return (
-    <div className="data-quality-page">
-      <header className="quality-page-heading">
+    <div className="data-quality-page" data-loading={loadState === 'loading'}>
+      <header className="quality-page-heading reveal reveal-0">
         <div>
 
           <h1>Data Status / Quality</h1>
@@ -94,17 +96,19 @@ export function DataQualityPage({ service = dataQualityService }: DataQualityPag
         {loadState === 'connected' && snapshot?.source === 'api' && <span className="quality-source-badge">Data backend</span>}
       </section>
 
-      <section className="dataset-identity panel" aria-labelledby="dataset-name">
+      {loadState === 'loading' && <PageSkeleton variant="quality" />}
+      <div className="quality-loaded-content" hidden={loadState === 'loading'}>
+      <section className="dataset-identity panel reveal reveal-1" aria-labelledby="dataset-name">
         <div className="dataset-identity-icon"><Database size={20} aria-hidden="true" /></div>
         <div className="dataset-identity-copy">
 
           <h2 id="dataset-name">UCI Online Retail II</h2>
-          <p>Identitas file: {snapshot?.dataset.fileIdentity ?? '?'}</p>
+          <p>Identitas file: {snapshot?.dataset.fileIdentity || 'Belum dilaporkan oleh sumber data'}</p>
         </div>
         <div className="dataset-read-status"><span>Status pembacaan</span><strong>{snapshot?.dataset.readStatus === 'available' ? 'Tersedia' : snapshot?.dataset.readStatus === 'failed' ? 'Gagal dibaca' : 'Belum terhubung'}</strong></div>
       </section>
 
-      <section className="quality-summary-grid" aria-label="Dataset summary">
+      <section className="quality-summary-grid reveal reveal-2" aria-label="Dataset summary">
         <SummaryCard icon={Rows3} label="Jumlah baris" value={formatCount(snapshot?.dataset.rowCount)} accent="blue" />
         <SummaryCard icon={Database} label="Jumlah kolom" value={formatCount(snapshot?.dataset.columnCount)} accent="teal" />
         <SummaryCard icon={CalendarDays} label="Rentang tanggal transaksi" value={formatDateRange(snapshot)} accent="indigo" />
@@ -112,6 +116,7 @@ export function DataQualityPage({ service = dataQualityService }: DataQualityPag
       </section>
 
       <DataQualitySections snapshot={snapshot} />
+      </div>
 
       {readFailed && !error && snapshot?.dataset.readStatus === 'failed' && <p className="quality-error-note">Backend melaporkan dataset gagal dibaca. Periksa pesan error atau log yang disediakan backend.</p>}
       <p className="quality-last-checked"><FileSearch size={14} aria-hidden="true" /> Waktu pemeriksaan terakhir: {formatTimestamp(snapshot?.dataset.lastCheckedAt)}</p>

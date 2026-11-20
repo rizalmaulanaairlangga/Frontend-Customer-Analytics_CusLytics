@@ -3,6 +3,7 @@ import { ArrowUpRight } from 'lucide-react'
 import type { DashboardSnapshot } from '../../types/analytics'
 import { formatNumber } from '../../utils/format'
 import { InfoTip } from '../InfoTip'
+import { CountUp } from '../ui/CountUp'
 
 interface CustomerSummaryProps { summary: DashboardSnapshot['customerSummary'] }
 
@@ -14,7 +15,7 @@ export function CustomerSummary({ summary }: CustomerSummaryProps) {
         <div><h2 id="customer-title">Customer summary</h2></div>
       </div>
       <div className="customer-count">
-        <strong>{summary.identifiedCustomers === null ? <span aria-label="Customer count not available">—</span> : formatNumber(summary.identifiedCustomers)}</strong>
+        <strong>{summary.identifiedCustomers === null ? <span aria-label="Customer count not available">—</span> : <CountUp value={summary.identifiedCustomers} format={(value) => formatNumber(value, { maximumFractionDigits: 0 })} />}</strong>
         <span>identified customers</span>
       </div>
       <div className="rfm-status-row"><span>RFM analytics</span><strong>{rfmLabel}</strong></div>

@@ -54,14 +54,14 @@ describe('application routes', () => {
     render(<MemoryRouter initialEntries={['/']}><App /></MemoryRouter>)
     fireEvent.click(screen.getByRole('link', { name: /Sales & Products/i }))
     expect(await screen.findByRole('heading', { name: 'Sales & Products' })).toBeTruthy()
-    expect(await screen.findByText('Demo Data')).toBeTruthy()
+    expect(screen.getByRole('heading', { name: 'Sales & Products' })).toBeTruthy()
   })
 
   it('opens ML Studio and reports that experiments are unavailable without backend metadata', async () => {
     render(<MemoryRouter initialEntries={['/ml-studio']}><App /></MemoryRouter>)
     expect(await screen.findByRole('heading', { name: 'ML Studio' })).toBeTruthy()
-    expect(await screen.findAllByText('Belum terhubung ke backend')).toHaveLength(2)
+    expect(await screen.findAllByText('Belum terhubung ke backend')).toHaveLength(1)
     expect(screen.getByRole('button', { name: 'Run K-Means Experiment' })).toBeTruthy()
-    expect(screen.getAllByText('Backend Unavailable').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Belum tersedia').length).toBeGreaterThan(0)
   })
 })

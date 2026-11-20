@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from '../layouts/AppShell'
+import { PageSkeleton } from '../components/PageSkeleton'
 
 const OverviewPage = lazy(() => import('../pages/OverviewPage').then((module) => ({ default: module.OverviewPage })))
 const DataQualityPage = lazy(() => import('../pages/DataQualityPage').then((module) => ({ default: module.DataQualityPage })))
@@ -15,14 +16,14 @@ export function AppRoutes() {
   return (
     <AppShell>
       <Routes>
-        <Route path="/" element={<Suspense fallback={<div className="skeleton skeleton-chart" role="status">Loading dashboard</div>}><OverviewPage /></Suspense>} />
-        <Route path="/data-quality" element={<Suspense fallback={<div className="skeleton skeleton-chart" role="status">Loading data quality profile</div>}><DataQualityPage /></Suspense>} />
-        <Route path="/sales-products" element={<Suspense fallback={<div className="skeleton skeleton-chart" role="status">Loading sales and product analytics</div>}><SalesProductsPage /></Suspense>} />
-        <Route path="/customers" element={<Suspense fallback={<div className="skeleton skeleton-chart" role="status">Loading customer analytics</div>}><CustomerAnalyticsPage /></Suspense>} />
-        <Route path="/ml-studio" element={<Suspense fallback={<div className="skeleton skeleton-chart" role="status">Loading ML Studio</div>}><MLStudioPage /></Suspense>} />
-        <Route path="/model-evaluation" element={<Suspense fallback={<div className="skeleton skeleton-chart" role="status">Loading model evaluation</div>}><ModelEvaluationPage /></Suspense>} />
-        <Route path="/action-center" element={<Suspense fallback={<div className="skeleton skeleton-chart" role="status">Loading Action Center</div>}><ActionCenterPage /></Suspense>} />
-        <Route path="/reports" element={<Suspense fallback={<div className="skeleton skeleton-chart" role="status">Loading reports workspace</div>}><ReportsPage /></Suspense>} />
+        <Route path="/" element={<Suspense fallback={<PageSkeleton variant="overview" showHeader />}><OverviewPage /></Suspense>} />
+        <Route path="/data-quality" element={<Suspense fallback={<PageSkeleton variant="overview" showHeader />}><DataQualityPage /></Suspense>} />
+        <Route path="/sales-products" element={<Suspense fallback={<PageSkeleton variant="overview" showHeader />}><SalesProductsPage /></Suspense>} />
+        <Route path="/customers" element={<Suspense fallback={<PageSkeleton variant="overview" showHeader />}><CustomerAnalyticsPage /></Suspense>} />
+        <Route path="/ml-studio" element={<Suspense fallback={<PageSkeleton variant="overview" showHeader />}><MLStudioPage /></Suspense>} />
+        <Route path="/model-evaluation" element={<Suspense fallback={<PageSkeleton variant="overview" showHeader />}><ModelEvaluationPage /></Suspense>} />
+        <Route path="/action-center" element={<Suspense fallback={<PageSkeleton variant="overview" showHeader />}><ActionCenterPage /></Suspense>} />
+        <Route path="/reports" element={<Suspense fallback={<PageSkeleton variant="overview" showHeader />}><ReportsPage /></Suspense>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppShell>

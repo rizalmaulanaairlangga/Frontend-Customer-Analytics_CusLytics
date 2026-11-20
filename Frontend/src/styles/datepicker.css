@@ -1,0 +1,28 @@
+.ui-date-picker { min-width: 0; }
+.ui-date-field { display: flex; min-height: 40px; align-items: center; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-sunken); }
+.ui-date-field:focus-within { outline: 2px solid var(--primary); outline-offset: 1px; }
+.ui-date-field input { width: 100%; min-width: 0; height: 38px; padding: 0 10px; border: 0; outline: 0; color: var(--text); background: transparent; cursor: pointer; }
+.ui-date-field input::placeholder { color: var(--text-subtle); }
+.ui-date-trigger { display: grid; width: 38px; height: 38px; flex: 0 0 38px; place-items: center; border: 0; color: var(--text-muted); background: transparent; cursor: pointer; }
+.ui-date-popup { z-index: 2000; width: 288px; max-width: calc(100vw - 16px); overflow-y: auto; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text); background: var(--bg-raised); box-shadow: var(--shadow-md); }
+.ui-date-header, .ui-date-header > div { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.ui-date-header button, .ui-date-footer button { min-height: 32px; padding: 4px 7px; border: 0; border-radius: var(--radius-sm); color: var(--primary); background: transparent; cursor: pointer; }
+.ui-date-month-toggle { display: flex; align-items: center; gap: 5px; color: var(--text) !important; font-weight: 600; }
+.ui-date-header > div button { display: grid; width: 32px; place-items: center; color: var(--text-muted); }
+.ui-date-header button:hover, .ui-date-footer button:hover { background: var(--bg-sunken); }
+.ui-date-weekdays, .ui-date-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.ui-date-weekdays { margin: 10px 0 4px; color: var(--text-muted); text-align: center; font-size: var(--fs-caption); }
+.ui-date-weekdays span { padding: 5px 0; }
+.ui-date-day { display: grid; min-width: 0; aspect-ratio: 1; place-items: center; border: 1px solid transparent; border-radius: var(--radius-sm); color: var(--text); background: transparent; cursor: pointer; }
+.ui-date-day:hover, .ui-date-day:focus-visible { background: var(--bg-sunken); }
+.ui-date-day.is-outside { color: var(--text-subtle); }
+.ui-date-day.is-today { border-color: var(--primary); }
+.ui-date-day.is-selected { color: var(--on-primary); background: var(--primary); }
+.ui-date-day:disabled { opacity: .35; cursor: not-allowed; }
+.ui-date-footer { display: flex; justify-content: space-between; margin-top: 9px; border-top: 1px solid var(--border); padding-top: 7px; }
+.ui-date-year-list { max-height: 286px; overflow-y: auto; scrollbar-color: var(--border-strong) transparent; scrollbar-width: thin; }
+.ui-date-year-row > button { width: 100%; padding: 7px; border: 0; border-radius: var(--radius-sm); color: var(--text); background: transparent; text-align: left; cursor: pointer; }
+.ui-date-year-row > button.is-selected { color: var(--primary); background: var(--primary-soft); }
+.ui-date-month-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 4px 6px 9px; }
+.ui-date-month-grid button { min-height: 32px; border: 0; border-radius: var(--radius-sm); color: var(--text); background: transparent; cursor: pointer; }
+.ui-date-month-grid button:hover, .ui-date-month-grid button.is-selected { color: var(--primary); background: var(--primary-soft); }

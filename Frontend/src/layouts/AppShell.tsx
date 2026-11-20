@@ -14,7 +14,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!mobileOpen) return
-    document.querySelector<HTMLElement>('.app-sidebar .collapse-button')?.focus()
+    document.querySelector<HTMLElement>('.app-sidebar .sidebar__nav a[href]')?.focus()
     function handleDrawerKeys(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         setMobileOpenForPath(null)

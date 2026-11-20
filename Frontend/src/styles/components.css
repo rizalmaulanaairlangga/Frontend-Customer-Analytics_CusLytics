@@ -1,4 +1,5 @@
 .ui-card, .panel { color: var(--text); background-color: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-panel); }
+.count-up { font-variant-numeric: tabular-nums; }
 
 .button { min-height: 40px; border-radius: var(--radius-sm); padding-inline: var(--space-3); font: 600 var(--fs-label)/var(--lh-label) var(--font-body); transition: color var(--dur-fast) ease-out, background-color var(--dur-fast) ease-out, border-color var(--dur-fast) ease-out, transform var(--dur-fast) ease-out; }
 .button-primary { color: var(--on-primary); background: var(--primary); }
@@ -9,10 +10,10 @@
 .button:active:not(:disabled) { transform: scale(.98); }
 .button:disabled { cursor: not-allowed; opacity: .55; }
 
-input:not([type="checkbox"]):not([type="radio"]), select, textarea { color: var(--text); background-color: var(--bg-sunken); border-color: var(--border); }
+input:not([type="checkbox"]):not([type="radio"]), textarea { color: var(--text); background-color: var(--bg-sunken); border-color: var(--border); }
 input[type="checkbox"], input[type="radio"] { accent-color: var(--primary); }
-input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
-select { color-scheme: inherit; }
+input:focus-visible, textarea:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
 
 .notice-banner { display: flex; min-width: 0; align-items: flex-start; gap: var(--space-3); padding: var(--space-3) var(--space-4); border: 1px solid currentColor; border-radius: var(--radius-md); font-size: var(--fs-body); line-height: var(--lh-body); }
 .notice-banner > svg { flex: 0 0 auto; margin-top: 2px; }
@@ -36,14 +37,19 @@ select { color-scheme: inherit; }
 .state-block-loading .state-block-icon svg { animation: state-spin 1.2s linear infinite; }
 @keyframes state-spin { to { transform: rotate(360deg); } }
 
-.info-tip { position: relative; display: inline-flex; vertical-align: middle; }
-.info-tip-trigger { display: inline-grid; width: 28px; height: 28px; place-items: center; border: 0; border-radius: 50%; color: var(--text-muted); background: transparent; cursor: help; }
-.info-tip-trigger:hover, .info-tip-trigger:focus-visible { color: var(--primary); background: var(--primary-soft); }
-.info-tip-tooltip { position: absolute; z-index: 50; bottom: calc(100% + 8px); left: 50%; width: max-content; max-width: min(280px, calc(100vw - 32px)); padding: var(--space-2) var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); background: var(--bg-raised); box-shadow: var(--shadow-md); font-size: var(--fs-caption); font-weight: 400; line-height: var(--lh-caption); opacity: 0; pointer-events: none; transform: translate(-50%, 4px); transition: opacity var(--dur-fast) ease-out, transform var(--dur-fast) ease-out; visibility: hidden; }
-.info-tip:hover .info-tip-tooltip, .info-tip:focus-within .info-tip-tooltip { opacity: 1; transform: translate(-50%, 0); visibility: visible; }
+.chart-title-inline { display: inline-flex; min-width: 0; align-items: center; gap: 8px; }
+.chart-title-inline h2 { margin: 0; }
+.info-tip { display: inline-flex; flex: 0 0 24px; vertical-align: middle; }
+.info-tip-trigger { display: inline-grid; width: 24px; height: 24px; place-items: center; border: 0; border-radius: 50%; color: var(--text-muted); background: transparent; cursor: help; }
+.info-tip-trigger:hover { color: var(--primary); background: var(--bg-sunken); }
+.info-tip-trigger:focus-visible { color: var(--primary); background: var(--bg-sunken); outline: 2px solid var(--primary); outline-offset: 1px; }
+.info-tip-tooltip { z-index: 2100; width: max-content; max-width: min(260px, calc(100vw - 24px)); padding: var(--space-2) var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); background: var(--bg-raised); box-shadow: var(--shadow-md); font-size: var(--fs-caption); font-weight: 400; line-height: var(--lh-caption); pointer-events: none; animation: info-tip-in var(--dur-fast) ease-out both; }
+@keyframes info-tip-in { from { opacity: 0; } to { opacity: 1; } }
 
-.skeleton-block { display: block; min-height: 1em; border-radius: var(--radius-sm); background: linear-gradient(100deg, var(--bg-sunken) 20%, var(--bg-raised) 45%, var(--bg-sunken) 70%); background-size: 220% 100%; animation: skeleton-shimmer 1.5s ease-in-out infinite; }
-@keyframes skeleton-shimmer { to { background-position-x: -220%; } }
+.skeleton-block { position: relative; display: block; min-height: 1em; overflow: hidden; border-radius: var(--radius-sm); background: var(--bg-sunken); }
+.skeleton-block::after { position: absolute; inset: 0; background: linear-gradient(100deg, transparent, var(--border), transparent); content: ""; opacity: .72; transform: translateX(-100%); animation: skeleton-shimmer 1.5s ease-in-out infinite; }
+@keyframes skeleton-shimmer { to { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .skeleton-block::after { animation: none; opacity: 0; } }
 
 .segmented-control { position: relative; display: inline-flex; min-height: 36px; align-items: stretch; gap: 0; padding: 3px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-sunken); isolation: isolate; }
 .segmented-control::before { position: absolute; z-index: 0; inset: 3px auto 3px 3px; width: calc((100% - 6px) / var(--segment-count, 2)); border: 1px solid var(--border); border-radius: 6px; background: var(--bg-raised); box-shadow: var(--shadow-sm); content: ""; transition: transform var(--dur-base) var(--ease-out); }
@@ -66,4 +72,5 @@ select { color-scheme: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .state-block-loading .state-block-icon svg, .skeleton-block { animation: none; }
   .info-tip-tooltip, .button, .segmented-control::before { transition: none; }
+  .info-tip-tooltip { animation: none; }
 }

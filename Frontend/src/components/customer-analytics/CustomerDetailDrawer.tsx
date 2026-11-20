@@ -3,10 +3,8 @@ import { X } from 'lucide-react'
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import type { CustomerRfmRecord } from '../../types/customerAnalytics'
 import { formatCurrency, formatNumber } from '../../utils/format'
-
-function chartMotionAllowed() {
-  return typeof window.matchMedia !== 'function' || !window.matchMedia('(prefers-reduced-motion: reduce)').matches
-}
+import { getMetricColor } from '../../constants/metricColors'
+import { useAfterReveal } from '../../hooks/useAfterReveal'
 
 function formatValue(value: number | null | undefined, currencyCode?: string): string {
   if (value == null) return '—'
@@ -18,6 +16,9 @@ function formatValue(value: number | null | undefined, currencyCode?: string): s
 }
 
 export function CustomerDetailDrawer({ customer, currencyCode, observationDate, analysisPeriod, onClose }: { customer: CustomerRfmRecord; currencyCode?: string; observationDate?: string; analysisPeriod?: { start: string; end: string }; onClose: () => void }) {
+  const historyColor = getMetricColor('transactionValue')
+  const chartRef = useRef<HTMLDivElement>(null)
+  const chartReady = useAfterReveal(chartRef)
   const closeRef = useRef<HTMLButtonElement>(null)
   useEffect(() => {
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
@@ -54,7 +55,7 @@ export function CustomerDetailDrawer({ customer, currencyCode, observationDate, 
         </div>
         <dl className="customer-detail-list"><div><dt>Cluster</dt><dd>{customer.clusterLabel || 'Belum tersedia'}</dd></div><div><dt>Profile</dt><dd>{customer.profile || 'Belum tersedia'}</dd></div><div><dt>Tanggal observasi RFM</dt><dd>{observationDate || 'Belum tersedia'}</dd></div><div><dt>Periode perhitungan</dt><dd>{analysisPeriod ? `${analysisPeriod.start} — ${analysisPeriod.end}` : 'Belum tersedia'}</dd></div></dl>
         <section className="customer-history-panel" aria-labelledby="customer-history-title"><div className="panel-heading"><div><h3 id="customer-history-title">Transaction history</h3></div></div>
-          {points.length ? <div className="customer-history-chart" role="img" aria-label={`Transaction value history for customer ${customer.customerId}`}><ResponsiveContainer width="100%" height="100%"><AreaChart data={points}><defs><linearGradient id="customerHistoryFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="var(--series-1)" stopOpacity={0.28}/><stop offset="100%" stopColor="var(--series-1)" stopOpacity={0}/></linearGradient></defs><CartesianGrid stroke="var(--chart-grid)" strokeDasharray="3 4" vertical={false} /><XAxis dataKey="label" stroke="var(--text-muted)" tick={{ fontSize: 12 }} /><YAxis stroke="var(--text-muted)" tick={{ fontSize: 12 }} /><Tooltip contentStyle={{ background: 'var(--bg-raised)', borderColor: 'var(--border)', color: 'var(--text)' }} formatter={(value) => formatValue(Number(value), currencyCode)} /><Area type="monotone" dataKey="transactionValue" name="Transaction value" stroke="var(--series-1)" strokeWidth={2} fill="url(#customerHistoryFill)" dot={false} activeDot={{ r: 5, stroke: 'var(--bg-surface)', strokeWidth: 2 }} isAnimationActive={chartMotionAllowed()} animationDuration={700} animationEasing="ease-out" /></AreaChart></ResponsiveContainer></div> : hasTrend ? <ul className="customer-history-list">{customer.history?.map((point) => <li key={point.period}><span>{point.label}</span><span>{point.uniqueInvoices == null ? '—' : `${formatValue(point.uniqueInvoices)} faktur`}</span></li>)}</ul> : <p className="customer-history-empty">Riwayat transaksi belum tersedia dari sumber data.</p>}
+          {points.length ? <div ref={chartRef} key={`${customer.customerId}-${points.length}-${JSON.stringify(points[0])}-${JSON.stringify(points[points.length - 1])}`} className={`customer-history-chart chart-reveal${chartReady ? ' is-ready' : ''}`} data-ready={chartReady ? 'true' : undefined} role="img" aria-label={`Transaction value history for customer ${customer.customerId}`}><ResponsiveContainer width="100%" height="100%"><AreaChart data={points}><defs><linearGradient id="customerHistoryFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={historyColor} stopOpacity={0.28}/><stop offset="100%" stopColor={historyColor} stopOpacity={0}/></linearGradient></defs><CartesianGrid stroke="var(--chart-grid)" strokeDasharray="3 4" vertical={false} /><XAxis dataKey="label" stroke="var(--text-muted)" tick={{ fontSize: 12 }} /><YAxis stroke="var(--text-muted)" tick={{ fontSize: 12 }} /><Tooltip contentStyle={{ background: 'var(--bg-raised)', borderColor: 'var(--border)', color: 'var(--text)' }} formatter={(value) => formatValue(Number(value), currencyCode)} /><Area type="monotone" dataKey="transactionValue" name="Transaction value" stroke={historyColor} strokeWidth={2} fill="url(#customerHistoryFill)" dot={false} activeDot={{ r: 5, stroke: 'var(--bg-surface)', strokeWidth: 2 }} isAnimationActive={false} /></AreaChart></ResponsiveContainer></div> : hasTrend ? <ul className="customer-history-list">{customer.history?.map((point) => <li key={point.period}><span>{point.label}</span><span>{point.uniqueInvoices == null ? '—' : `${formatValue(point.uniqueInvoices)} faktur`}</span></li>)}</ul> : <p className="customer-history-empty">Riwayat transaksi belum tersedia dari sumber data.</p>}
         </section>
       </section>
     </div>

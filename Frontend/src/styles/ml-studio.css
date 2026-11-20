@@ -37,8 +37,8 @@
 .ml-panel-icon-violet { color: var(--quality-violet); background: var(--quality-violet-bg); }
 .ml-field-block { display: grid; gap: 7px; margin-bottom: 16px; }
 .ml-field-block > label, .ml-field-label, .ml-field-heading label { color: var(--text-secondary); font-size: 12px; font-weight: 650; }
-.ml-field-block > input, .ml-field-block > select { width: 100%; min-height: 38px; padding: 0 11px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); color: var(--text); background: var(--control-bg); font-size: 12px; }
-.ml-field-block > input:focus, .ml-field-block > select:focus { border-color: var(--blue-500); }
+.ml-field-block > input, .ml-field-block > .ui-select .ui-select-trigger { width: 100%; min-height: 38px; padding: 0 11px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); color: var(--text); background: var(--control-bg); font-size: 12px; }
+.ml-field-block > input:focus, .ml-field-block > .ui-select .ui-select-trigger:focus { border-color: var(--blue-500); }
 .ml-field-block > p, .ml-field-block > div > p { margin: 0; color: var(--text-muted); font-size: 12px; line-height: 1.5; }
 .ml-field-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .ml-field-heading > span { display: grid; min-width: 30px; height: 26px; place-items: center; border: 1px solid var(--quality-violet-bg); border-radius: 6px; color: var(--quality-violet); background: var(--quality-violet-bg); font-size: 12px; font-weight: 700; }
@@ -93,7 +93,7 @@
 .ml-history-heading { margin-bottom: 13px; }
 .ml-history-toolbar { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 10px; }
 .ml-history-toolbar label { display: grid; gap: 5px; color: var(--text-muted); font-size: 12px; }
-.ml-history-toolbar select { min-height: 32px; max-width: 190px; padding: 0 9px; border: 1px solid var(--border-strong); border-radius: 6px; color: var(--text); background: var(--control-bg); font-size: 12px; }
+.ml-history-toolbar .ui-select-trigger { min-height: 40px; max-width: 190px; padding: 0 9px; border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); background: var(--bg-sunken); font-size: 12px; }
 .ml-history-table-wrap { max-width: 100%; overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; scrollbar-color: var(--border-strong) var(--surface-muted); }
 .ml-history-table { width: 100%; min-width: 850px; border-collapse: collapse; text-align: left; }
 .ml-history-table th { padding: 10px 9px; color: var(--text-muted); background: var(--surface-muted); font-size: 12px; font-weight: 650; white-space: nowrap; }
@@ -142,9 +142,9 @@
   .ml-run-button { width: 100%; }
   .ml-history-toolbar { justify-content: stretch; }
   .ml-history-toolbar label { flex: 1; }
-  .ml-history-toolbar select { width: 100%; max-width: none; }
+  .ml-history-toolbar .ui-select-trigger { width: 100%; max-width: none; }
   .ml-history-table-wrap { margin-inline: -2px; }
-  .ml-field-block > input, .ml-field-block > select, .ml-history-toolbar select { min-height: 44px; }
+  .ml-field-block > input, .ml-field-block > .ui-select .ui-select-trigger, .ml-history-toolbar .ui-select-trigger { min-height: 44px; }
   .ml-run-button { min-height: 46px; }
   .ml-history-table td .ml-id-button, .ml-history-table td .ml-table-action { min-height: 40px; }
   .ml-connection-banner .button { flex: 0 0 auto; }

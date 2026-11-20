@@ -1,5 +1,7 @@
+import { useRef } from 'react'
 import { NavLink } from 'react-router-dom'
-import { BarChart3, ChevronLeft, ChevronRight, FileText, FlaskConical, LayoutDashboard, ListChecks, SlidersHorizontal, UsersRound, X, type LucideIcon } from 'lucide-react'
+import { BarChart3, ChevronLeft, FileText, FlaskConical, LayoutDashboard, ListChecks, SlidersHorizontal, UsersRound, type LucideIcon } from 'lucide-react'
+import { useNavIndicator } from '../hooks/useNavIndicator'
 import { navigationItems } from './navigation'
 
 interface SidebarProps {
@@ -22,29 +24,37 @@ const navigationIcons: Record<(typeof navigationItems)[number]['icon'], LucideIc
 
 function NavigationIcon({ name }: { name: (typeof navigationItems)[number]['icon'] }) {
   const Icon = navigationIcons[name]
-  return <Icon className="navigation-icon" size={19} strokeWidth={1.7} aria-hidden="true" />
+  return <Icon className="navigation-icon" size={20} strokeWidth={1.7} aria-hidden="true" />
 }
 
 export function Sidebar({ collapsed, mobileOpen, onCollapse, onNavigate }: SidebarProps) {
+  const navRef = useRef<HTMLElement>(null)
+  const indicatorRef = useRef<HTMLSpanElement>(null)
+  useNavIndicator(navRef, indicatorRef)
+
   return (
     <>
       <button className={`drawer-scrim ${mobileOpen ? 'is-visible' : ''}`} type="button" aria-label="Dismiss navigation drawer" onClick={onNavigate} tabIndex={mobileOpen ? 0 : -1} />
       <aside className={`app-sidebar ${collapsed ? 'is-collapsed' : ''} ${mobileOpen ? 'is-open' : ''}`} role={mobileOpen ? 'dialog' : undefined} aria-modal={mobileOpen || undefined} aria-label={mobileOpen ? 'Navigation drawer' : undefined}>
         <div className="brand-row">
-          <span className="brand-mark" aria-hidden="true">C</span>
-          {!collapsed && <div className="brand-copy"><strong>CusLytics</strong><span>Customer Analytics</span></div>}
-          <button className="collapse-button" type="button" onClick={mobileOpen ? onNavigate : onCollapse} aria-label={mobileOpen ? 'Close menu' : collapsed ? 'Expand sidebar' : 'Collapse sidebar'} title={mobileOpen ? 'Close menu' : collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
-            {mobileOpen ? <X size={18} aria-hidden="true" /> : collapsed ? <ChevronRight size={18} aria-hidden="true" /> : <ChevronLeft size={18} aria-hidden="true" />}
-          </button>
+          {collapsed
+            ? <button className="brand-mark" type="button" aria-label="Buka sidebar" onClick={onCollapse}><img src="/cuslytics-mark.svg" alt="" /></button>
+            : <img className="brand-logo-horizontal" src="/cuslytics-logo-horizontal.svg" alt="CusLytics" />}
         </div>
         <div className="navigation-caption">WORKSPACE</div>
-        <nav className="primary-navigation" id="primary-navigation" aria-label="Primary navigation">
-          {navigationItems.map((item) => (
-            <NavLink key={item.to} to={item.to} end={item.to === '/'} onClick={onNavigate} aria-label={item.label} title={collapsed ? item.label : undefined} className={({ isActive }) => `navigation-link${isActive ? ' is-active' : ''}`}>
-              <NavigationIcon name={item.icon} /><span>{item.label}</span>
-            </NavLink>
-          ))}
-        </nav>
+        <div className="sidebar__nav-scroll">
+          <nav ref={navRef} className="sidebar__nav primary-navigation" id="primary-navigation" aria-label="Primary navigation">
+            <span className="sidebar__indicator" aria-hidden="true" ref={indicatorRef} />
+            {navigationItems.map((item) => (
+              <NavLink key={item.to} to={item.to} end={item.to === '/'} onClick={onNavigate} aria-label={item.label} title={collapsed ? item.label : undefined} className="sidebar__link navigation-link">
+                <NavigationIcon name={item.icon} /><span>{item.label}</span>
+              </NavLink>
+            ))}
+          </nav>
+        </div>
+        <button className="sidebar-edge-toggle" type="button" aria-expanded={!collapsed} aria-controls="primary-navigation" aria-label={collapsed ? 'Buka sidebar' : 'Tutup sidebar'} title={collapsed ? 'Buka sidebar' : 'Tutup sidebar'} onClick={onCollapse}>
+          <ChevronLeft className="collapse-chevron" size={16} aria-hidden="true" />
+        </button>
       </aside>
     </>
   )

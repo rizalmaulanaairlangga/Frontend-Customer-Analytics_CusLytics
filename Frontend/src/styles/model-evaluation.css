@@ -5,8 +5,8 @@
 .evaluation-heading .button { flex: 0 0 auto; }
 .evaluation-toolbar { display: flex; align-items: center; gap: 12px; }
 .evaluation-toolbar label { color: var(--text-secondary); font-size: 12px; font-weight: 650; }
-.evaluation-toolbar select, .evaluation-axis-controls select { min-height: 36px; max-width: 100%; padding: 0 32px 0 10px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); color: var(--text); background: var(--control-bg); font: inherit; }
-.evaluation-toolbar select { flex: 1; }
+.evaluation-toolbar .ui-select-trigger, .evaluation-axis-controls .ui-select-trigger { min-height: 40px; max-width: 100%; padding: 0 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); background: var(--bg-sunken); font: inherit; }
+.evaluation-toolbar .ui-select { flex: 1; }
 .evaluation-source { display: inline-flex; align-items: center; gap: 7px; color: var(--text-secondary); white-space: nowrap; font-size: 12px; }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--positive); }
 .evaluation-source-loading .status-dot { background: var(--warning); }
@@ -59,7 +59,7 @@
 .evaluation-scatter-title { align-items: center; }
 .evaluation-axis-controls { display: flex; flex-wrap: wrap; gap: 10px; }
 .evaluation-axis-controls label { display: grid; gap: 5px; color: var(--text-muted); font-size: 12px; }
-.evaluation-axis-controls select { min-height: 32px; font-size: 12px; }
+.evaluation-axis-controls .ui-select-trigger { font-size: 12px; }
 .evaluation-interpretation ul { display: grid; gap: 8px; margin: 0; padding-left: 18px; color: var(--text-secondary); font-size: 12px; line-height: 1.55; }
 .evaluation-observations { margin-bottom: 13px; padding: 11px 12px; border: 1px solid var(--demo-notice-border); border-radius: var(--radius-sm); background: var(--demo-bg); }
 .evaluation-observations h3 { margin: 0 0 7px; color: var(--text); font-size: 12px; }
@@ -85,13 +85,13 @@
   .evaluation-heading { flex-direction: column; align-items: stretch; gap: 12px; }
   .evaluation-heading .button { align-self: flex-start; }
   .evaluation-toolbar { align-items: stretch; flex-direction: column; }
-  .evaluation-toolbar select { width: 100%; }
+  .evaluation-toolbar .ui-select-trigger { width: 100%; }
   .evaluation-source { white-space: normal; }
   .evaluation-metadata { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .evaluation-scatter-title { align-items: flex-start; flex-direction: column; }
   .evaluation-axis-controls { width: 100%; }
   .evaluation-axis-controls label { flex: 1; min-width: 120px; }
-  .evaluation-axis-controls select { width: 100%; }
+  .evaluation-axis-controls .ui-select-trigger { width: 100%; }
 }
 @media (max-width: 420px) {
   .evaluation-metric-grid { grid-template-columns: 1fr; }

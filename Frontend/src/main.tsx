@@ -16,6 +16,11 @@ import './styles/model-evaluation.css'
 import './styles/action-center.css'
 import './styles/reports.css'
 import './styles/components.css'
+import './styles/select.css'
+import './styles/datepicker.css'
+import './styles/bar-fill.css'
+import './styles/modal.css'
+import './styles/page-skeleton.css'
 import { App } from './app/App'
 
 createRoot(document.getElementById('root')!).render(

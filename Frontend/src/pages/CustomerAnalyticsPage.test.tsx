@@ -7,7 +7,7 @@ import type { CustomerAnalyticsService, CustomerAnalyticsSnapshot } from '../typ
 
 const snapshot: CustomerAnalyticsSnapshot = {
   summary: { eligibleCustomers: 2, customersWithRfmProfiles: 1, observationDate: '2026-08-31', analysisPeriod: { start: '2026-01-01', end: '2026-08-31' }, segmentationStatus: 'unavailable' },
-  distributions: { recency: [{ label: '0–30 days', count: 1, rangeStart: 0, rangeEnd: 30 }], frequency: [], monetary: [] },
+  distributions: { recency: [{ label: '0â€“30 days', count: 1, rangeStart: 0, rangeEnd: 30 }], frequency: [], monetary: [] },
   customers: [{ customerId: '0003', recency: 12, frequency: 4, monetary: 72, clusterLabel: null, profile: null }], currencyCode: 'USD', source: 'api',
 }
 
@@ -16,8 +16,8 @@ describe('CustomerAnalyticsPage', () => {
     const service: CustomerAnalyticsService = { getSnapshot: vi.fn().mockResolvedValue(snapshot) }
     render(<MemoryRouter><CustomerAnalyticsPage service={service} /></MemoryRouter>)
     expect(await screen.findByRole('heading', { name: 'Customer Analytics' })).toBeTruthy()
-    expect(screen.getByText('Backend Data')).toBeTruthy()
-    expect(screen.getAllByText('2026-01-01 — 2026-08-31').length).toBeGreaterThan(0)
+    expect(screen.getByText(/Periode analisis:/).textContent).toContain('2026-01-01')
+    expect(screen.getByText(/Periode analisis:/).textContent).toContain('2026-08-31')
     expect(screen.getByLabelText(/Eligible Customers: 2/)).toBeTruthy()
     expect(screen.getByLabelText(/Customers with RFM Profiles: 1/)).toBeTruthy()
     expect(screen.getByText(/Profil RFM dan cluster adalah hal berbeda/i)).toBeTruthy()
@@ -42,8 +42,8 @@ describe('CustomerAnalyticsPage', () => {
     rerender(<MemoryRouter><CustomerAnalyticsPage service={failed} /></MemoryRouter>)
     expect(screen.getByRole('status', { name: 'Customer analytics loading' })).toBeTruthy()
     rejectRequest(new Error('Backend not reachable.'))
-    expect(await screen.findByText('Backend not reachable.')).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
+    expect(await screen.findByText('Tidak dapat terhubung ke layanan. Periksa koneksi internet Anda.')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Coba lagi' }))
     await waitFor(() => expect(failed.getSnapshot).toHaveBeenCalledTimes(2))
   })
 })

@@ -6,6 +6,9 @@ import { actionCenterService, ActionCenterConfigurationError } from '../services
 import type { ActionCenterService, ActionCenterSnapshot, ActionRecommendation, ActionRecommendationCategory, ActionRecommendationSource } from '../types/actionCenter'
 import { getUserFacingError } from '../services/userFacingError'
 import { StateBlock } from '../components/StateBlock'
+import { Select } from '../components/ui/Select'
+import { PageSkeleton } from '../components/PageSkeleton'
+import { CountUp } from '../components/ui/CountUp'
 
 const noRecommendations: ActionRecommendation[] = []
 
@@ -82,26 +85,26 @@ export function ActionCenterPage({ service = actionCenterService }: { service?: 
   const closeDrawer = useCallback(() => { setSelected(null) }, [])
   function openEvidence(recommendation: ActionRecommendation) { setSelected(recommendation) }
 
-  return <div className="page-content action-center-page">
-    <header className="page-heading action-page-heading"><div><h1>Action Center</h1><p>Ubah temuan analitik pelanggan menjadi saran tindakan bisnis yang transparan dan dapat ditinjau.</p></div></header>
+  return <div className="page-content action-center-page" data-loading={loadState === 'loading'}>
+    <header className="page-heading action-page-heading reveal reveal-0"><div><h1>Action Center</h1><p>Ubah temuan analitik pelanggan menjadi saran tindakan bisnis yang transparan dan dapat ditinjau.</p></div></header>
 
-    {loadState === 'loading' && <StateBlock kind="loading" title="Memuat rekomendasi" detail="Memeriksa sumber analitik yang terhubung." />}
+    {loadState === 'loading' && <PageSkeleton variant="actions" />}
     {loadState === 'unavailable' && <StateBlock kind="unavailable" title="Action Center belum tersedia" detail={request?.message || 'Rekomendasi aktual menunggu integrasi backend.'} />}
     {loadState === 'error' && <StateBlock kind="error" title="Rekomendasi gagal dimuat" detail={request?.message || 'Periksa koneksi lalu coba lagi.'} action={<button className="button button-secondary" type="button" onClick={retryRequest}><RotateCw size={15}/>Coba lagi</button>} />}
     <section className="action-summary-grid" aria-label="Recommendation overview">
-      <article className="action-summary-card action-summary-total"><span>Visible recommendations</span><strong>{hasRecommendations ? filteredRecommendations.length : '—'}</strong><small>{hasRecommendations ? `Showing ${filteredRecommendations.length} of ${allRecommendations.length} recommendations` : 'Counts appear when recommendations are supplied.'}</small></article>
+      <article className="action-summary-card action-summary-total"><span>Visible recommendations</span><strong>{hasRecommendations ? <CountUp value={filteredRecommendations.length} /> : '—'}</strong><small>{hasRecommendations ? `Showing ${filteredRecommendations.length} of ${allRecommendations.length} recommendations` : 'Counts appear when recommendations are supplied.'}</small></article>
       <article className="action-summary-card action-summary-categories"><span>Categories in this view</span>{Object.entries(visibleCategoryCounts).length ? <div className="action-summary-tags">{Object.entries(visibleCategoryCounts).map(([key, count]) => <span className={`action-category-tag action-category-${key}`} key={key}>{categoryLabels[key as ActionRecommendationCategory]} <b>{count}</b></span>)}</div> : <strong>{loadState === 'success' ? 'Belum ada' : 'Menunggu integrasi backend'}</strong>}<small>Counts come from the currently visible records.</small></article>
       <article className="action-summary-card action-summary-sources"><span>Analytics sources in this view</span><strong>{visibleSources.length ? visibleSources.map(sourceName).join(' · ') : loadState === 'success' ? 'Belum tersedia' : 'Menunggu integrasi backend'}</strong><small>{snapshot?.sourceLabel || 'Source labels follow each supplied recommendation.'}</small></article>
       <article className="action-summary-card action-summary-evidence"><span>Supporting evidence</span><strong>{hasRecommendations ? `${evidenceCount} of ${filteredRecommendations.length}` : loadState === 'success' ? 'Belum tersedia' : 'Menunggu integrasi backend'}</strong><small>{snapshot?.dataStatus === 'partial' ? 'Backend reports partial data availability.' : snapshot?.dataStatus === 'unavailable' ? 'Backend reports supporting data unavailable.' : 'Availability is assessed from supplied evidence fields.'}</small></article>
     </section>
 
-    <section className="action-controls panel" aria-label="Recommendation filters">
+    <section className="action-controls panel reveal reveal-1" aria-label="Recommendation filters">
       <div className="action-controls-heading"><div><SlidersHorizontal size={16} aria-hidden="true"/><h2>Find recommendations</h2></div>{filtersActive && <span className="action-filter-active">Filters active</span>}</div>
       <div className="action-filter-grid">
-        <label>Category<select aria-label="Filter by category" value={category} onChange={(event) => setCategory(event.target.value as CategoryFilter)} disabled={!hasRecommendations}><option value="all">All categories</option>{Object.entries(categoryLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
-        <label>Analytics source<select aria-label="Filter by source" value={source} onChange={(event) => setSource(event.target.value as SourceFilter)} disabled={!hasRecommendations}><option value="all">All sources</option><option value="rfm">RFM</option><option value="cluster">Cluster</option><option value="product">Product</option></select></label>
+        <label>Category<Select aria-label="Filter by category" value={category} onChange={(value) => setCategory(value as CategoryFilter)} disabled={!hasRecommendations}><option value="all">All categories</option>{Object.entries(categoryLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</Select></label>
+        <label>Analytics source<Select aria-label="Filter by source" value={source} onChange={(value) => setSource(value as SourceFilter)} disabled={!hasRecommendations}><option value="all">All sources</option><option value="rfm">RFM</option><option value="cluster">Cluster</option><option value="product">Product</option></Select></label>
         <label>Search<input aria-label="Search recommendations" type="search" placeholder="Customer ID or segment" value={query} onChange={(event) => setQuery(event.target.value)} disabled={!hasRecommendations}/></label>
-        <label>Sort by<select aria-label="Sort recommendations" value={sort} onChange={(event) => setSort(event.target.value as 'title' | 'newest')} disabled={!hasRecommendations}><option value="title">Title A–Z</option><option value="newest" disabled={!newestAvailable}>Newest first</option></select></label>
+        <label>Sort by<Select aria-label="Sort recommendations" value={sort} onChange={(value) => setSort(value as 'title' | 'newest')} disabled={!hasRecommendations}><option value="title">Title A–Z</option><option value="newest" disabled={!newestAvailable}>Newest first</option></Select></label>
       </div>
       <div className="action-filter-footer"><span>{filtersActive ? `${filteredRecommendations.length} results · filters active` : hasRecommendations ? `${allRecommendations.length} recommendations available` : 'Filters are waiting for recommendation data.'}</span><button type="button" className="text-button" onClick={resetFilters} disabled={!filtersActive}>Reset filters</button></div>
     </section>
@@ -110,7 +113,7 @@ export function ActionCenterPage({ service = actionCenterService }: { service?: 
 
     {loadState === 'success' && !hasRecommendations && <StateBlock kind="empty" title="Belum ada rekomendasi" detail="Belum ada rekomendasi aktual yang disediakan oleh sumber analitik. Kategori contoh tidak ditampilkan sebagai hasil." />}
     {loadState === 'success' && hasRecommendations && filteredRecommendations.length === 0 && <section className="action-empty-state" role="status"><span className="action-empty-icon" aria-hidden="true">⌕</span><div><h2>No recommendations match these filters</h2><p>Try another category, source, or search term.</p><button type="button" className="text-button" onClick={resetFilters}>Reset filters</button></div></section>}
-    {loadState === 'success' && filteredRecommendations.length > 0 && <section className="action-recommendation-grid" aria-label="Recommendations">{filteredRecommendations.map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} snapshot={snapshot!} onViewEvidence={() => openEvidence(recommendation)}/>)}</section>}
+    {loadState === 'success' && filteredRecommendations.length > 0 && <section className="action-recommendation-grid reveal reveal-3" aria-label="Recommendations">{filteredRecommendations.map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} snapshot={snapshot!} onViewEvidence={() => openEvidence(recommendation)}/>)}</section>}
     {selected && snapshot && <RecommendationEvidenceDrawer recommendation={selected} snapshot={snapshot} onClose={closeDrawer}/>}
   </div>
 }

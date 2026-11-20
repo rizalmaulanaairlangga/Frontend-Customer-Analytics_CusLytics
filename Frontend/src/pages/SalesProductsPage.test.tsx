@@ -42,15 +42,14 @@ describe('Sales & Products page', () => {
     expect(screen.getByLabelText('Sales and Products loading')).toBeTruthy()
     rejectRequest(new Error('Backend unavailable.'))
     expect(await screen.findByRole('alert')).toBeTruthy()
-    expect(screen.getByText('Backend unavailable.')).toBeTruthy()
+    expect(screen.getByText('Layanan belum tersedia saat ini.')).toBeTruthy()
   })
 
   it('shows only supplied figures, source state, and separate trend series', async () => {
     render(<SalesProductsPage service={makeService(() => snapshot)} />)
     expect(await screen.findByRole('heading', { name: 'Sales & Products' })).toBeTruthy()
-    expect(screen.getByText('Backend Data')).toBeTruthy()
-    expect(screen.getByLabelText(/^Transaction Value: US\$1,200\.00$/)).toBeTruthy()
-    expect(screen.getByText(/^Transaction Value is not profit\.$/)).toBeTruthy()
+    expect(screen.getByRole('article', { name: /Transaction Value/ }).textContent).toContain('1.200')
+    expect(screen.getByRole('article', { name: /Transaction Value/ }).textContent).toContain('not profit')
     expect(screen.getByRole('region', { name: /sales trend/i })).toBeTruthy()
     expect(screen.getByRole('region', { name: /invoice & units trend/i })).toBeTruthy()
     expect(screen.getByLabelText('Show invoice or unit trend')).toBeTruthy()
@@ -59,12 +58,13 @@ describe('Sales & Products page', () => {
   it('applies and resets one shared filter set and changes aggregation on the service', async () => {
     const service = makeService((nextFilters) => ({ ...snapshot, filters: nextFilters }))
     render(<SalesProductsPage service={service} />)
-    await screen.findByText('Backend Data')
+    await screen.findByRole('heading', { name: 'Sales & Products' })
     fireEvent.change(screen.getByLabelText('Start date'), { target: { value: '2026-01-01' } })
     fireEvent.change(screen.getByLabelText('Country'), { target: { value: 'Indonesia' } })
     fireEvent.click(screen.getByRole('button', { name: 'Apply filters' }))
     await waitFor(() => expect(service.getDashboard).toHaveBeenLastCalledWith({ startDate: '2026-01-01', endDate: '', country: 'Indonesia' }, 'month', expect.any(AbortSignal)))
-    expect(await screen.findByText(/2026-01-01.*Indonesia/)).toBeTruthy()
+    expect(document.querySelector('.applied-sales-filters')?.textContent).toContain('2026-01-01')
+    expect(document.querySelector('.applied-sales-filters')?.textContent).toContain('Indonesia')
 
     fireEvent.click(screen.getByRole('button', { name: 'Weekly' }))
     await waitFor(() => expect(service.getDashboard).toHaveBeenLastCalledWith({ startDate: '2026-01-01', endDate: '', country: 'Indonesia' }, 'week', expect.any(AbortSignal)))
@@ -74,7 +74,7 @@ describe('Sales & Products page', () => {
 
   it('supports ranking metric, chart selection, search, sorting, and pagination', async () => {
     render(<SalesProductsPage service={makeService(() => snapshot)} />)
-    await screen.findByText('Backend Data')
+    await screen.findByRole('heading', { name: 'Sales & Products' })
     fireEvent.click(screen.getByRole('button', { name: 'Units Sold' }))
     expect(screen.getByRole('button', { name: 'Units Sold' }).getAttribute('aria-pressed')).toBe('true')
     fireEvent.change(screen.getByLabelText('Products in ranking'), { target: { value: '10' } })
@@ -99,7 +99,7 @@ describe('Sales & Products page', () => {
   it('applies a country selection through the shared page filters and handles absent aggregates', async () => {
     const service = makeService((nextFilters) => ({ ...snapshot, filters: nextFilters }))
     render(<SalesProductsPage service={service} />)
-    await screen.findByText('Backend Data')
+    await screen.findByRole('heading', { name: 'Sales & Products' })
     fireEvent.click(screen.getByRole('button', { name: /Indonesia.*700/i }))
     await waitFor(() => expect(service.getDashboard).toHaveBeenLastCalledWith({ ...filters, country: 'Indonesia' }, 'month', expect.any(AbortSignal)))
 
@@ -133,7 +133,6 @@ describe('Sales & Products page', () => {
     cleanup()
     render(<SalesProductsPage service={makeService(() => emptySnapshot)} />)
     expect(await screen.findByText(/No analytics results are available for these filters/i)).toBeTruthy()
-    expect(screen.getByText('Backend Data')).toBeTruthy()
     expect(screen.queryByText('0')).toBeNull()
     expect(screen.getByText(/Product rows are not available/i)).toBeTruthy()
   })

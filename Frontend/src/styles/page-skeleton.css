@@ -1,0 +1,22 @@
+.page-skeleton { display: grid; min-width: 0; gap: var(--space-4); padding-block: var(--space-4); }
+.customer-analytics-page[data-loading="true"] > :not(header):not(.page-skeleton), .action-center-page[data-loading="true"] > :not(header):not(.page-skeleton), .data-quality-page[data-loading="true"] > :not(header):not(.connection-banner):not(.page-skeleton) { display: none; }
+.page-skeleton-kpis, .page-skeleton-columns, .page-skeleton-rfm, .page-skeleton-insights, .page-skeleton-filters, .page-skeleton-reports { display: grid; min-width: 0; gap: var(--space-4); }
+.page-skeleton-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.page-skeleton-columns { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.page-skeleton-rfm, .page-skeleton-insights, .page-skeleton-reports { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.page-skeleton-insights { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.page-skeleton-filters { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.page-skeleton-card { display: grid; min-width: 0; align-content: start; gap: var(--space-3); min-height: 150px; padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-surface); }
+.page-skeleton-header { display: grid; gap: 8px; padding-block: 4px; }.ps-title { width: 34%; height: 30px; }.ps-subtitle { width: 52%; height: 14px; }
+.page-skeleton-card.ps-kpi { min-height: 104px; }
+.page-skeleton-card.ps-chart { min-height: 260px; }
+.page-skeleton-card.ps-row-card { min-height: 100px; }
+.ps-heading { width: 42%; height: 19px; }
+.ps-copy { width: 64%; height: 13px; }
+.ps-content { width: 100%; height: 76px; align-self: end; }
+.ps-control { width: 100%; height: 40px; }
+.page-skeleton-bars { display: grid; gap: 13px; }
+.page-skeleton-bar-row { display: grid; grid-template-columns: minmax(60px, 1fr) 2fr minmax(38px, auto); align-items: center; gap: 10px; }
+.ps-label { width: 82%; height: 12px; }.ps-bar { width: 100%; height: 8px; border-radius: var(--radius-pill); }.ps-value { width: 38px; height: 12px; }
+.ps-table { display: grid; gap: 7px; }.ps-table-head { width: 100%; height: 24px; }.ps-table-row { width: 100%; height: 30px; }
+@media (max-width: 760px) { .page-skeleton-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .page-skeleton-columns, .page-skeleton-rfm, .page-skeleton-insights, .page-skeleton-reports { grid-template-columns: 1fr; } .page-skeleton-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

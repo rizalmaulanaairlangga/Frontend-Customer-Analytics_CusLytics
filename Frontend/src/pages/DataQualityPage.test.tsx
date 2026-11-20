@@ -24,7 +24,7 @@ describe('Data Status / Quality page', () => {
     expect(await screen.findByText('Belum terhubung')).toBeTruthy()
     expect(screen.getByText('Menunggu data dari backend')).toBeTruthy()
     expect(screen.queryByText('0')).toBeNull()
-    expect(screen.getByText('Belum ada temuan kualitas data yang tersedia.')).toBeTruthy()
+    expect(screen.getByText('Rincian kualitas belum tersedia')).toBeTruthy()
   })
 
   it('shows only metadata supplied by the service', async () => {
@@ -66,17 +66,19 @@ describe('Data Status / Quality page', () => {
     let rejectRequest!: (error: Error) => void
     const pending = new Promise<DataQualitySnapshot | null>((_resolve, reject) => { rejectRequest = reject })
     render(<DataQualityPage service={service(pending)} />)
-    expect(screen.getByRole('status', { name: 'Loading data quality profile' })).toBeTruthy()
+    expect(screen.getByText('Memuat profil dataset')).toBeTruthy()
     rejectRequest(new Error('Could not reach the analytics service.'))
-    await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('Could not reach the analytics service.'))
+    await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('Tidak dapat terhubung ke layanan. Periksa koneksi internet Anda.'))
   })
 
   it('describes missing API configuration as unconnected, not a failed dataset read', async () => {
     const missingConfig = service(Promise.reject(new DataQualityConfigurationError('Set VITE_API_BASE_URL before connecting.')))
     render(<DataQualityPage service={missingConfig} />)
-    const status = await screen.findByRole('status')
+    await screen.findByText('Belum terhubung')
+    const status = document.querySelector('.connection-banner')!
     expect(status.textContent).toContain('Belum terhubung')
-    expect(status.textContent).toContain('Set VITE_API_BASE_URL')
+    expect(status.textContent).toContain('Layanan belum tersedia saat ini.')
+    expect(status.textContent).not.toContain('VITE_API_BASE_URL')
     expect(screen.queryByRole('alert')).toBeNull()
     expect(screen.queryByText('Profil dataset gagal dibaca')).toBeNull()
   })

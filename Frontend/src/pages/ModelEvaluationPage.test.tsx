@@ -44,8 +44,8 @@ describe('Model Evaluation page', () => {
   it('loads the experiment named in the URL and displays its supplied metrics and cluster profiles', async () => {
     const getEvaluation = vi.fn().mockResolvedValue(evaluation)
     renderPage({ getExperiments: vi.fn().mockResolvedValue(experiments), getEvaluation }, '/model-evaluation?experimentId=exp-1')
-    expect(await screen.findByText('18.5')).toBeTruthy()
-    expect(screen.getByText('0.42')).toBeTruthy()
+    expect(await screen.findByText('18,5')).toBeTruthy()
+    expect(screen.getByText('0,42')).toBeTruthy()
     expect(screen.getAllByText('median').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Customers evaluated').length).toBeGreaterThan(0)
     expect(getEvaluation).toHaveBeenCalledWith('exp-1', expect.any(AbortSignal))
@@ -54,7 +54,7 @@ describe('Model Evaluation page', () => {
   it('uses distinct scatter axes when one axis changes to the currently selected value', async () => {
     const user = userEvent.setup()
     renderPage({ getExperiments: vi.fn().mockResolvedValue(experiments), getEvaluation: vi.fn().mockResolvedValue(evaluation) })
-    await screen.findByText('18.5')
+    await screen.findByText('18,5')
     await user.selectOptions(screen.getByLabelText('Scatter X axis'), 'frequency')
     expect(screen.getByLabelText('Scatter X axis')).toHaveProperty('value', 'frequency')
     expect(screen.getByLabelText('Scatter Y axis')).toHaveProperty('value', 'recency')
@@ -66,17 +66,17 @@ describe('Model Evaluation page', () => {
     const getEvaluation = vi.fn().mockResolvedValueOnce(evaluation).mockImplementationOnce(() => new Promise(() => {}))
     const service = { getExperiments: vi.fn().mockResolvedValue(experiments), getEvaluation }
     render(<MemoryRouter initialEntries={['/model-evaluation?experimentId=exp-1']}><NavigateToSecondExperiment/><Routes><Route path="/model-evaluation" element={<ModelEvaluationPage service={service} />} /></Routes></MemoryRouter>)
-    await screen.findByText('18.5')
+    await screen.findByText('18,5')
     await user.click(screen.getByText('Navigate to second experiment'))
-    expect(await screen.findByText('Loading results for exp-2…')).toBeTruthy()
-    expect(screen.queryByText('18.5')).toBeNull()
+    expect(await screen.findByText('Menunggu hasil untuk exp-2.')).toBeTruthy()
+    expect(screen.queryByText('18,5')).toBeNull()
   })
 
   it('loads and removes actual experiment comparisons without retraining', async () => {
     const user = userEvent.setup()
     const getEvaluation = vi.fn().mockImplementation(async (id: string) => ({ ...evaluation, experiment: { ...evaluation.experiment, id, k: id === 'exp-1' ? 2 : 3 } }))
     renderPage({ getExperiments: vi.fn().mockResolvedValue(experiments), getEvaluation })
-    await screen.findByText('18.5')
+    await screen.findByText('18,5')
     await user.click(screen.getByLabelText('Compare exp-1'))
     await user.click(screen.getByLabelText('Compare exp-2'))
     expect(await screen.findByText('Compare experiments')).toBeTruthy()
@@ -89,8 +89,8 @@ describe('Model Evaluation page', () => {
   it('shows backend unavailable and retryable error states without sample results', async () => {
     const getExperiments = vi.fn().mockRejectedValueOnce(new Error('Metadata request failed.')).mockResolvedValueOnce([])
     renderPage({ getExperiments, getEvaluation: vi.fn() })
-    expect(await screen.findByText(/Metadata request failed/i)).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
+    expect(await screen.findByText('Terjadi kesalahan yang tidak terduga. Silakan coba kembali beberapa saat lagi.')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Coba lagi' }))
     expect(await screen.findByText(/Hasil evaluasi akan tersedia/i)).toBeTruthy()
   })
 })

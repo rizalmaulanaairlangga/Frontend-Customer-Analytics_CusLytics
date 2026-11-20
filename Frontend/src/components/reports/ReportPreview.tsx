@@ -69,7 +69,7 @@ function ProductSummary({ snapshot, rankingMetric }: { snapshot: DashboardSnapsh
   const valueFor = (product: DashboardSnapshot['products'][number]) => product[rankingMetric]
   const products = [...snapshot.products].sort((a, b) => (valueFor(b) ?? -Infinity) - (valueFor(a) ?? -Infinity))
   return <>
-    <div className="reports-preview-context"><strong>Ranking metric</strong><span>{rankingMetric === 'salesValue' ? 'Transaction value' : rankingMetric === 'unitsSold' ? 'Units sold' : 'Unique invoices'}</span><small>Product values are source-reported.</small></div>
+    <div className="reports-preview reveal reveal-3-context"><strong>Ranking metric</strong><span>{rankingMetric === 'salesValue' ? 'Transaction value' : rankingMetric === 'unitsSold' ? 'Units sold' : 'Unique invoices'}</span><small>Product values are source-reported.</small></div>
     <div className="reports-table-heading"><div><h3>Product preview</h3><p>Source-provided product entries in the selected ranking order.</p></div><span>{products.length} product entries returned</span></div>
     {products.length ? <div className="reports-table-wrap" role="region" aria-label="Product preview; scroll horizontally if needed" tabIndex={0}><table aria-label="Product preview"><thead><tr><th>Rank</th><th>StockCode</th><th>Description</th><th>Units sold</th><th>Transaction value</th><th>Unique invoices</th></tr></thead><tbody>{products.slice(0, 8).map((product, index) => <tr key={product.productId}><td>{index + 1}</td><th scope="row">{product.productId}</th><td>{product.description}</td><td>{number(product.unitsSold, 0)}</td><td>{money(product.salesValue, snapshot.currencyCode)}</td><td>{number(product.uniqueInvoices, 0)}</td></tr>)}</tbody></table></div> : <p className="reports-inline-empty">No product rows were supplied by the analytics source.</p>}
   </>
@@ -117,8 +117,8 @@ export function ReportPreview({ reportType, format, filters, rankingMetric, anal
   const payloadReady = reportType === 'sales-summary' || reportType === 'product-performance' ? Boolean(analytics.data) : reportType === 'customer-rfm' ? Boolean(customers.data) : Boolean(experiment && evaluation.data)
 
   return <section className="panel reports-preview-panel" aria-label="Report Preview">
-    <header className="reports-preview-header"><div><h2>Report Preview</h2><p>Review the supplied data and selected output before requesting an export.</p></div><span className={`reports-preview-status reports-preview-status-${resource.status}`}><span className="reports-status-dot"/>{displayStatus(resource.status)}</span></header>
-    <div className="reports-preview-report-heading"><span className="reports-preview-report-icon"><FileText size={17} aria-hidden="true"/></span><div><h3>{reportName}</h3><span>Source: {source}</span></div></div>
+    <header className="reports-preview reveal reveal-3-header"><div><h2>Report Preview</h2><p>Review the supplied data and selected output before requesting an export.</p></div><span className={`reports-preview-status reports-preview-status-${resource.status}`}><span className="reports-status-dot"/>{displayStatus(resource.status)}</span></header>
+    <div className="reports-preview reveal reveal-3-report-heading"><span className="reports-preview reveal reveal-3-report-icon"><FileText size={17} aria-hidden="true"/></span><div><h3>{reportName}</h3><span>Source: {source}</span></div></div>
     <FilterSummary reportType={reportType} filters={filters} format={format} rankingMetric={rankingMetric}/>
     {resource.status !== 'success' && resource.status !== 'empty' && <SourceState state={resource} reportType={reportType}/>}
     {resource.status === 'empty' && <SourceState state={resource} reportType={reportType}/>}
@@ -129,7 +129,7 @@ export function ReportPreview({ reportType, format, filters, rankingMetric, anal
       {reportType === 'customer-rfm' && customers.data && <CustomerSummary snapshot={customers.data}/>}
       {(reportType === 'kmeans-segmentation' || reportType === 'model-evaluation') && experiment && evaluation.data && <ExperimentSummary experiment={experiment} snapshot={evaluation.data} evaluationType={reportType === 'model-evaluation'}/>}
     </>}
-    {resource.status === 'success' && !payloadReady && <div className="reports-preview-state" role="status"><AlertCircle size={17}/><div><strong>Choose a successful experiment</strong><p>Evaluation preview requires an experiment supplied by ML Studio.</p></div></div>}
-    <div className="reports-preview-footer"><span>{payloadReady ? source === 'Demo Data' ? 'Demo preview only Ã‚Â· export unavailable' : 'Preview uses returned records/metadata Ã‚Â· export depends on backend' : 'Row count and report contents are not available yet.'}</span><strong>{format.toUpperCase()}</strong></div>
+    {resource.status === 'success' && !payloadReady && <div className="reports-preview reveal reveal-3-state" role="status"><AlertCircle size={17}/><div><strong>Choose a successful experiment</strong><p>Evaluation preview requires an experiment supplied by ML Studio.</p></div></div>}
+    <div className="reports-preview reveal reveal-3-footer"><span>{payloadReady ? source === 'Demo Data' ? 'Demo preview only Ã‚Â· export unavailable' : 'Preview uses returned records/metadata Ã‚Â· export depends on backend' : 'Row count and report contents are not available yet.'}</span><strong>{format.toUpperCase()}</strong></div>
   </section>
 }
