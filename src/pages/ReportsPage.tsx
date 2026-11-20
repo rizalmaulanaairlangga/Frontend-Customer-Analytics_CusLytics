@@ -54,7 +54,7 @@ export function ReportsPage({ sources = reportSources, exportService = reportsEx
   const [evaluation, setEvaluation] = useState<Resource<ModelEvaluationSnapshot>>(noSource())
 
   useEffect(() => {
-    if (!reportType) return
+    if (!reportType || !window.matchMedia('(max-width: 850px)').matches) return
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     reportFormRef.current?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' })
   }, [reportType])
