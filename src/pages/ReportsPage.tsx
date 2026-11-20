@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AlertCircle, CheckCircle2, Download } from 'lucide-react'
 import { ReportTypeSelector } from '../components/reports/ReportTypeSelector'
 import { reportTypeOptions } from '../components/reports/reportOptions'
@@ -38,6 +38,7 @@ function statusText(status: Status): string {
 }
 
 export function ReportsPage({ sources = reportSources, exportService = reportsExportService }: { sources?: ReportSources; exportService?: ReportsExportService }) {
+  const reportFormRef = useRef<HTMLElement>(null)
   const [reportType, setReportType] = useState<ReportType | null>(null)
   const [format, setFormat] = useState<ReportFormat>('csv')
   const [startDate, setStartDate] = useState('')
@@ -51,6 +52,12 @@ export function ReportsPage({ sources = reportSources, exportService = reportsEx
   const [customers, setCustomers] = useState<Resource<CustomerAnalyticsSnapshot>>(noSource())
   const [workspace, setWorkspace] = useState<Resource<MLStudioWorkspace>>(noSource())
   const [evaluation, setEvaluation] = useState<Resource<ModelEvaluationSnapshot>>(noSource())
+
+  useEffect(() => {
+    if (!reportType) return
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    reportFormRef.current?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' })
+  }, [reportType])
 
   const rangeError = dateRangeError(startDate, endDate)
   const isSalesReport = reportType === 'sales-summary' || reportType === 'product-performance'
@@ -175,7 +182,7 @@ export function ReportsPage({ sources = reportSources, exportService = reportsEx
     <ReportTypeSelector reportType={reportType} onSelect={selectReport} options={reportTypeOptions} selectedStatus={statusText(status)} selectedSource={sourceLabel}/>
 
     {reportType && <div className="reports-builder-grid">
-      <section className="panel reports-configuration reveal reveal-2" aria-label="Report configuration">
+      <section ref={reportFormRef} className="panel reports-configuration reveal reveal-2" aria-label="Report configuration">
         <div className="reports-section-heading"><div><h2>{selectedOption?.title}</h2><p>{selectedOption?.description}</p></div>{activeFilterCount > 0 && <span className="reports-filter-count">{activeFilterCount} active</span>}</div>
         <div className="reports-form-grid">
           <fieldset className="reports-format-field"><legend>Output format</legend><label htmlFor="report-format">File format</label><Select id="report-format" aria-label="Output format" value={format} onChange={(value) => { setFormat(value as ReportFormat); setExportState('idle'); setExportMessage('') }}><option value="csv">CSV · comma-separated values</option><option value="xlsx">Excel workbook (.xlsx)</option></Select><p>{format === 'csv' ? 'CSV is a plain-text table format. Actual report downloads need backend support.' : 'Excel workbook format is selected; actual report downloads need backend support.'}</p></fieldset>

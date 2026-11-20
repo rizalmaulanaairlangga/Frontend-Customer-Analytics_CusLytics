@@ -80,9 +80,9 @@
   --sidebar-border: var(--border);
 
   /* Typography */
-  --font-display: "Bricolage Grotesque", system-ui, sans-serif;
-  --font-body: "Instrument Sans", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-display: "Poppins", system-ui, sans-serif;
+  --font-body: "Poppins", system-ui, sans-serif;
+  --font-mono: "Poppins", system-ui, sans-serif;
   --fs-display: 32px;
   --fs-kpi: 32px;
   --fs-title: 18px;

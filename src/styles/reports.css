@@ -30,7 +30,7 @@
 .report-type-selected-status small { color: var(--text-muted); font-size: 12px; overflow-wrap: anywhere; }
 .reports-builder-grid { display: grid; grid-template-columns: minmax(260px, .78fr) minmax(0, 1.22fr); align-items: start; gap: 13px; min-width: 0; }
 .reports-configuration, .reports-preview-panel { min-width: 0; padding: 16px; }
-.reports-configuration { display: grid; gap: 16px; }
+.reports-configuration { display: grid; gap: 16px; scroll-margin-top: calc(56px + var(--space-4)); }
 .reports-section-heading, .reports-preview-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .reports-section-heading h2, .reports-preview-header h2 { margin: 3px 0 5px; color: var(--navy-950); font-size: 15px; }
 .reports-section-heading p, .reports-preview-header p { margin: 0; color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
