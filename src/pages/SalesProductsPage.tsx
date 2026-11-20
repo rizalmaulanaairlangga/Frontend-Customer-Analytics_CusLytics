@@ -59,10 +59,6 @@ export function SalesProductsPage({ service = analyticsService }: { service?: An
     setSelectedProduct(null)
   }
 
-  function selectCountry(country: string) {
-    applyFilters({ ...appliedFilters, country })
-  }
-
   return (
     <div className="sales-products-page">
       <header className="sales-products-heading reveal reveal-0">
@@ -99,7 +95,7 @@ export function SalesProductsPage({ service = analyticsService }: { service?: An
       <ProductRanking products={ready?.products ?? []} metric={productMetric} count={rankCount} currencyCode={ready?.currencyCode} selectedId={selectedProduct ?? undefined} onMetricChange={setProductMetric} onCountChange={setRankCount} onSelect={setSelectedProduct} />
       <ProductTable products={ready?.products ?? []} currencyCode={ready?.currencyCode} selectedId={selectedProduct} onClearSelection={() => setSelectedProduct(null)} />
 
-      <CountryRanking countries={ready?.countries} currencyCode={ready?.currencyCode} selectedCountry={appliedFilters.country} onSelect={selectCountry} />
+      <CountryRanking countries={ready?.countries} currencyCode={ready?.currencyCode} />
       {loadState === 'error' && <StateMessage kind="error" title="Sales analytics could not be loaded" detail={error ?? 'Check the API connection and retry.'} action={{ label: 'Coba lagi', onClick: () => setRetry((count) => count + 1) }} />}
       </div>}
     </div>

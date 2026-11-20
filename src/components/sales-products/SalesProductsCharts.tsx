@@ -69,8 +69,8 @@ export function ProductRanking({
   )
 }
 
-export function CountryRanking({ countries, currencyCode, selectedCountry, onSelect }: {
-  countries?: CountryRank[]; currencyCode?: string; selectedCountry: string; onSelect: (country: string) => void
+export function CountryRanking({ countries, currencyCode }: {
+  countries?: CountryRank[]; currencyCode?: string
 }) {
   const ranked = [...(countries ?? [])].sort((a, b) => b.transactionValue - a.transactionValue)
   return (
