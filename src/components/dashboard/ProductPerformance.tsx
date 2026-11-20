@@ -32,11 +32,11 @@ export function ProductPerformance({ products, currencyCode }: ProductPerformanc
           {ranked.slice(0, 5).map((product, index) => {
             const value = product[metric]
             return (
-              <li className="product-rank bar-rank-item" key={product.productId}>
+              <li className="product-rank bar-rank-item" key={product.productId} title={`${product.description}: ${formatted(value)}`}>
                 <span className="rank-number">{String(index + 1).padStart(2, '0')}</span>
                 <div className="rank-content">
                   <div className="rank-label"><span title={product.description}>{product.description}</span><strong>{formatted(value)}</strong></div>
-                  <div className="rank-track ranking-row" role="meter" aria-label={`${product.description} ${metric === 'salesValue' ? 'transaction value' : 'units sold'}`} aria-valuemin={0} aria-valuemax={max} aria-valuenow={value}>
+                  <div className="rank-meter" role="meter" aria-label={`${product.description}: ${formatted(value)}`} aria-valuemin={0} aria-valuemax={max} aria-valuenow={value}>
                     <BarFill key={`${metric}-${ranked.map((item) => `${item.productId}:${item[metric]}`).join('|')}-${product.productId}`} color={getItemColor(product.productId)} itemId={product.productId} metricKey={metric} ratio={value / max} index={index} />
                   </div>
                 </div>

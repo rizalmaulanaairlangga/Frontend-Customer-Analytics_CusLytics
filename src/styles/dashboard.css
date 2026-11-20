@@ -72,14 +72,14 @@
 .compact-select { display: block; width: 145px; flex: 0 0 auto; }
 
 .product-panel .panel-subtitle { margin-top: 5px; }
-.product-ranks { display: grid; gap: 15px; margin: 19px 0 0; padding: 0; list-style: none; }
-.product-rank { display: flex; align-items: center; gap: 11px; }
-.rank-number { width: 22px; flex: 0 0 22px; color: var(--text-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.product-ranks { display: grid; gap: 4px; margin: 17px 0 0; padding: 0; list-style: none; }
+.product-rank { display: flex; align-items: center; gap: 10px; border: 1px solid transparent; border-radius: var(--radius-sm); padding: 9px 8px; }
+.rank-number { width: 28px; flex: 0 0 28px; color: var(--text-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
 .rank-content { display: grid; min-width: 0; flex: 1; gap: 7px; }
 .rank-label { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: 12px; color: var(--text-secondary); font-size: 12px; }
 .rank-label span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rank-label strong { flex: 0 0 auto; color: var(--navy-950); font-size: 12px; font-variant-numeric: tabular-nums; }
-.rank-track { height: 8px; overflow: visible; border-radius: var(--radius-pill); background: transparent; }
+.rank-meter { display: block; min-width: 0; }
 
 .inline-empty { margin: 25px 0; color: var(--text-muted); font-size: 12px; }
 

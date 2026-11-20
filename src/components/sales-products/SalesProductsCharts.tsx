@@ -18,9 +18,9 @@ function formatValue(value: number, currencyCode?: string): string {
 }
 
 function RankingRows<T extends { id: string; label: string; value: number }>({
-  items, accent, selectedId, onSelect, format, replayKey,
+  items, accent, selectedId, onSelect, format, replayKey, interactive = true,
 }: {
-  items: T[]; accent: 'violet' | 'coral'; selectedId?: string; onSelect: (id: string) => void; format: (value: number) => string; replayKey: string
+  items: T[]; accent: 'violet' | 'coral'; selectedId?: string; onSelect?: (id: string) => void; format: (value: number) => string; replayKey: string; interactive?: boolean
 }) {
   const maxValue = Math.max(1, ...items.map((item) => Math.abs(item.value)))
   if (!items.length) return null
@@ -28,12 +28,16 @@ function RankingRows<T extends { id: string; label: string; value: number }>({
   return (
     <ol className={`intelligence-ranks bar-rank-list rank-${accent}`}>
       {items.map((item, index) => (
-        <li className="bar-rank-item" key={item.id}>
-          <button className={`intelligence-rank${selectedId === item.id ? ' is-selected' : ''}`} type="button" onClick={() => onSelect(item.id)} title={`${item.label}: ${format(item.value)}`} aria-pressed={selectedId === item.id}>
+        <li className={`bar-rank-item${interactive ? '' : ' is-static'}`} key={item.id} title={`${item.label}: ${format(item.value)}`}>
+          {interactive ? <button className={`intelligence-rank${selectedId === item.id ? ' is-selected' : ''}`} type="button" onClick={() => onSelect?.(item.id)} title={`${item.label}: ${format(item.value)}`} aria-pressed={selectedId === item.id}>
             <span className="intelligence-rank-index">{String(index + 1).padStart(2, '0')}</span>
             <span className="intelligence-rank-main"><span className="intelligence-rank-label">{item.label}</span><BarFill key={`${replayKey}-${item.id}`} color={getItemColor(item.id, items.map((entry) => entry.id))} itemId={item.id} metricKey={replayKey} ratio={Math.abs(item.value) / maxValue} index={index} /></span>
             <strong className="intelligence-rank-value">{format(item.value)}</strong>
-          </button>
+          </button> : <div className="intelligence-rank" title={`${item.label}: ${format(item.value)}`}>
+            <span className="intelligence-rank-index">{String(index + 1).padStart(2, '0')}</span>
+            <span className="intelligence-rank-main"><span className="intelligence-rank-label">{item.label}</span><BarFill key={`${replayKey}-${item.id}`} color={getItemColor(item.id, items.map((entry) => entry.id))} itemId={item.id} metricKey={replayKey} ratio={Math.abs(item.value) / maxValue} index={index} /></span>
+            <strong className="intelligence-rank-value">{format(item.value)}</strong>
+          </div>}
         </li>
       ))}
     </ol>
@@ -73,7 +77,7 @@ export function CountryRanking({ countries, currencyCode, selectedCountry, onSel
     <section className="panel country-panel" aria-labelledby="country-ranking-title">
       <div className="panel-heading"><div className="chart-title-inline"><h2 id="country-ranking-title">Sales by Country</h2><InfoTip label="Transaction value information">Transaction value is not profit.</InfoTip></div></div>
       <p className="panel-subtitle">Ranked by transaction value.</p>
-      {ranked.length ? <RankingRows items={ranked.map((item) => ({ id: item.country, label: `${item.country}${item.uniqueInvoices == null ? '' : ` · ${formatValue(item.uniqueInvoices)} invoices`}`, value: item.transactionValue }))} accent="coral" replayKey={ranked.map((item) => `${item.country}:${item.transactionValue}`).join('|')} selectedId={selectedCountry || undefined} onSelect={onSelect} format={(value) => formatValue(value, currencyCode)} /> : <p className="intelligence-empty">Country aggregates are not available from the connected source.</p>}
+      {ranked.length ? <RankingRows items={ranked.map((item) => ({ id: item.country, label: `${item.country}${item.uniqueInvoices == null ? '' : ` · ${formatValue(item.uniqueInvoices)} invoices`}`, value: item.transactionValue }))} accent="coral" replayKey={ranked.map((item) => `${item.country}:${item.transactionValue}`).join('|')} format={(value) => formatValue(value, currencyCode)} interactive={false} /> : <p className="intelligence-empty">Country aggregates are not available from the connected source.</p>}
     </section>
   )
 }

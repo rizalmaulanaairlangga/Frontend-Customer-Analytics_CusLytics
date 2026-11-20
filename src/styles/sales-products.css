@@ -37,8 +37,7 @@
 .intelligence-controls .segmented-control button { min-height: 30px; }
 .intelligence-ranks { display: grid; width: 100%; min-width: 0; gap: 4px; margin: 17px 0 0; padding: 0; list-style: none; }
 .intelligence-ranks > li { min-width: 0; }
-.intelligence-rank { display: grid; width: 100%; min-width: 0; max-width: 100%; grid-template-columns: 28px minmax(0, 1fr) minmax(66px, auto); align-items: center; gap: 10px; border: 1px solid transparent; border-radius: 8px; padding: 9px 8px; color: var(--text-secondary); background: transparent; text-align: left; cursor: pointer; transition: border-color 130ms ease, background-color 130ms ease, transform 130ms ease; }
-.intelligence-rank:hover { border-color: var(--border); background: var(--surface-muted); transform: translateY(-1px); }
+.intelligence-rank { display: grid; width: 100%; min-width: 0; max-width: 100%; grid-template-columns: 28px minmax(0, 1fr) minmax(66px, auto); align-items: center; gap: 10px; border: 1px solid transparent; border-radius: 8px; padding: 9px 8px; color: var(--text-secondary); background: transparent; text-align: left; cursor: default; transition: border-color 130ms ease, background-color 130ms ease, transform 130ms ease; }
 .intelligence-rank.is-selected { border-color: color-mix(in srgb, var(--metric-color) 48%, var(--border)); background: color-mix(in srgb, var(--metric-color) 9%, var(--surface)); }
 
 .intelligence-rank-index { color: var(--text-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
